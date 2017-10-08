@@ -14,7 +14,7 @@ import com.pgsv.game.stages.Map;
 
 public class Player {
 	
-	private final int IDLE = 0, WALK = 1, JUMP = 3;
+	private final int IDLE = 0, WALK = 1, JUMP = 3, DEAD = 4;
 
 	private Map map;
 	public Vector2 position;
@@ -24,6 +24,7 @@ public class Player {
 	private TextureRegion currentFrame;
 	private TextureRegion fall;
 	private TextureRegion parachute;
+	private TextureRegion dead;
 	private Animation<TextureRegion> idleAnimation;
 	private Animation<TextureRegion> walkAnimation;
 	private Animation<TextureRegion> [] animations;
@@ -31,6 +32,7 @@ public class Player {
 	private boolean right;
 	private boolean grounded;
 	private boolean isParachute;
+	private boolean respawn;
 	
 	private int jumpCount;
 	private int currentState;
@@ -72,6 +74,8 @@ public class Player {
 		this.jump[0] = new TextureRegion(this.spriteSheet, 48, 16, 16, 16);
 		this.jump[1] = new TextureRegion(this.spriteSheet, 64, 48, 16, 16);
 		
+		this.dead = new TextureRegion(this.spriteSheet, 64, 0, 16, 16);
+		
 		this.fall = new TextureRegion(this.spriteSheet, 64, 16, 16, 16);
 		
 		this.parachute = new TextureRegion(this.spriteSheet, 48, 48, 16, 16);
@@ -86,9 +90,10 @@ public class Player {
 		this.right = true;
 		this.grounded = true;
 		this.isParachute = true;
+		this.respawn = false;
 		
 		this.jumpCount = 0;
-		this.currentState = IDLE;
+		changeState(IDLE);
 		
 		this.animationDelta = 0f;
 		this.angle = 0f;
@@ -100,6 +105,11 @@ public class Player {
 	
 	public void update(float delta)
 	{	
+		if(currentState == DEAD) 
+		{
+			deathUpdate(delta);
+			return;
+		}
 		controls(delta);
 		
 		this.animationDelta += delta;
@@ -116,8 +126,6 @@ public class Player {
 		else if(this.map.isSolid(tileRight))
 			this.position.x = tileRight.x - 13;
 			
-		
-		System.out.println(tileLeft.z);
 		
 		if(!this.grounded)
 		{	
@@ -148,6 +156,13 @@ public class Player {
 		
 	}
 	
+	private void deathUpdate(float delta)
+	{
+		this.gravity -= delta * 500f;
+		if(this.gravity < - 200f) this.gravity = -200f;
+		this.position.y += this.gravity * delta;
+	}
+	
 	private void controls(float delta)
 	{
 		if(Gdx.input.isKeyPressed(Input.Keys.RIGHT))
@@ -171,7 +186,7 @@ public class Player {
 		{
 			if((this.currentState != JUMP && this.grounded) || (this.currentState == JUMP && this.jumpCount == 1))
 			{
-				this.currentState = JUMP;
+				changeState(JUMP);
 				this.grounded = false;
 				this.position.y += 4f;
 				this.gravity = this.jumpCount == 1 ? 140f : 164f;
@@ -181,10 +196,34 @@ public class Player {
 		
 	}
 	
+	public boolean isDead()
+	{
+		return this.currentState == DEAD;
+	}
+	
+	public void die()
+	{
+		if(this.currentState != DEAD)
+		{
+			changeState(DEAD);
+			this.gravity = 200f;
+		}
+	}
+	
 	private void changeState(int state)
 	{
 		this.animationDelta = 0f;
 		this.currentState = state;
+	}
+	
+	public boolean isRespawn()
+	{
+		return this.respawn;
+	}
+	
+	public void respawn(float x, float y)
+	{
+		this.init(x, y);
 	}
 	
 	public void ground(float y)
@@ -202,7 +241,6 @@ public class Player {
 		this.grounded = false;
 		this.isParachute = false;
 		this.jumpCount = 1;
-		this.gravity = 0f;
 		changeState(JUMP);
 	}
 	
@@ -211,7 +249,6 @@ public class Player {
 		this.isParachute = true;
 		this.grounded = false;
 		this.jumpCount = 0;
-		this.gravity = 0f;
 		changeState(JUMP);
 	}
 	
@@ -221,17 +258,21 @@ public class Player {
 		{
 			batch.draw(this.parachute,this.position.x,this.position.y + 7);
 		}
-		
-		if(this.currentState != JUMP)
-		{
-			this.currentFrame = this.animations[this.currentState].getKeyFrame(this.animationDelta, true);
-		}
-		else
+
+		if(this.currentState == JUMP)
 		{
 			if(this.gravity > - 40f * jumpCount)
 				this.currentFrame = this.jump[this.jumpCount < 2 ? 0 : 1];
 			else
 				this.currentFrame = this.fall;
+		}
+		else if(this.currentState == DEAD)
+		{
+			this.currentFrame = dead;
+		}
+		else
+		{
+			this.currentFrame = this.animations[this.currentState].getKeyFrame(this.animationDelta, true);
 		}
 		
 		if(this.currentFrame.isFlipX() == this.right)

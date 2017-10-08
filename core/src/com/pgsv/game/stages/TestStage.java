@@ -14,19 +14,27 @@ import com.pgsv.game.consts.C;
 
 public class TestStage implements Screen
 {
-	private SpriteBatch batch;
-	private Player player;
-	private OrthographicCamera camera;
-	private Map map;
-	private Texture tiles;
-	private Texture background;
-	private Texture [] water;
 	private Animation<TextureRegion> waterAnimation;
-	private float waterDelta;
-	private float off;
-	private float offy;
+	private Map map;
+	private OrthographicCamera camera;
+	private Player player;
+	private SpriteBatch batch;	
+	
+	private Texture [] water;
+	private Texture background;
+	private Texture tiles;
+	
+	private TextureRegion cloud;
+	
 	private boolean debug;
 	
+	private float off;
+	private float offy;
+	private float waterDelta;
+	
+	private float [] cloudX;
+	private float [] cloudY;
+		
 	public TestStage(SpriteBatch batch) {
 		super();
 		this.batch = batch;
@@ -51,6 +59,11 @@ public class TestStage implements Screen
 		this.water = new Texture[2];
 		this.water[0] = new Texture(Gdx.files.internal(C.path + "stages/1/back_river_1.png"));
 		this.water[1] = new Texture(Gdx.files.internal(C.path + "stages/1/back_river_2.png"));
+		
+		this.cloud = new TextureRegion(tiles, 32, 0, 16, 16);
+		this.cloudX = new float[3];
+		this.cloudY = new float[3];
+		for(int i = 0; i < 3; i ++) cloudX[i] = -200;
 		
 		TextureRegion [] waterRegion = new TextureRegion[2];
 		waterRegion[0] = new TextureRegion(this.water[0]);
@@ -77,11 +90,12 @@ public class TestStage implements Screen
 	public void update(float delta)
 	{
 		if(Gdx.input.isKeyJustPressed(Input.Keys.F2)) this.debug = !this.debug;
+		if(Gdx.input.isKeyJustPressed(Input.Keys.F4)) this.player.die();
 		
 		if(debug) this.map.editMode(camera);
 		this.player.update(Gdx.graphics.getDeltaTime());
 				
-		if(!debug)
+		if(!this.debug && !this.player.isDead())
 		{
 			if(this.player.position.x > this.camera.position.x + 4f)
 			{
@@ -91,9 +105,9 @@ public class TestStage implements Screen
 			{
 				this.camera.position.x = this.player.position.x + 24f;
 			}
-			if(this.player.position.y > this.camera.position.y + 6)
+			if(this.player.position.y > this.camera.position.y + 14)
 			{
-				this.camera.position.y = this.player.position.y - 6;
+				this.camera.position.y = this.player.position.y - 14;
 			}
 			else if(this.player.position.y < this.camera.position.y - 36)
 			{
@@ -120,11 +134,12 @@ public class TestStage implements Screen
 		float camX = this.camera.position.x - this.camera.viewportWidth /2f;
 		float camY = this.camera.position.y - this.camera.viewportHeight /2f;
 		
+		if(this.player.position.x < -10)
+			this.player.position.x = -10;
 		
-		if(this.player.position.y < -20)
+		if(this.player.position.y < camY - 120f)
 		{
-			this.player.position.y = 132f;
-			this.player.position.x = 12f;
+			player.respawn(12f, 128f);
 			this.player.fallParachute();
 		}
 		
@@ -134,6 +149,7 @@ public class TestStage implements Screen
 		if(offy > 94) offy = camY ;
 		
 		waterDelta += delta;
+		
 	}
 	
 	public void draw()
@@ -151,8 +167,15 @@ public class TestStage implements Screen
 		batch.draw(this.waterAnimation.getKeyFrame(waterDelta, true), this.background.getWidth() * 3 + off, offy + 17);
 		
 		this.map.draw(camera, batch);
+		
+		for(int i = 1; i < 12; i ++)
+		{
+			batch.draw(this.cloud, off + i * (i % 2 == 0? 200 : 70), 96 + offy + (i % 2 == 0? 7 : 2));
+		}
+		
 		this.player.draw(this.batch);
 	}
+	
 	
 	
 	@Override
