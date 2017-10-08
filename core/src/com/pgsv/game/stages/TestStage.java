@@ -1,5 +1,7 @@
 package com.pgsv.game.stages;
 
+import java.util.LinkedList;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
@@ -9,6 +11,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.pgsv.game.actors.Bullseye;
 import com.pgsv.game.actors.Player;
 import com.pgsv.game.consts.C;
 
@@ -18,11 +21,13 @@ public class TestStage implements Screen
 	private Map map;
 	private OrthographicCamera camera;
 	private Player player;
-	private SpriteBatch batch;	
+	private SpriteBatch batch;
+	private LinkedList<Bullseye> bulls;
 	
 	private Texture [] water;
 	private Texture background;
 	private Texture tiles;
+	private Texture bull;
 	
 	private TextureRegion cloud;
 	
@@ -45,9 +50,9 @@ public class TestStage implements Screen
 		this.tiles = new Texture(Gdx.files.internal(C.path + "stages/1/tiles.png"));
 		this.background = new Texture(Gdx.files.internal(C.path + "stages/1/back.png"));
 		
-		TextureRegion [] tilesRegion = new TextureRegion[3 * 6];
+		TextureRegion [] tilesRegion = new TextureRegion[3 * 7];
 		int current = 0;
-		for(int line = 0; line < 6; line ++)
+		for(int line = 0; line < 7; line ++)
 		{
 			for(int col = 0; col < 3; col ++)
 			{
@@ -77,12 +82,19 @@ public class TestStage implements Screen
 		this.waterDelta = 0f;
 		
 		this.map = new Map("testMap", tilesRegion);
-		int [] solids = {10, 11, 12, 13, 14, 15, 16, 18};
+		int [] solids = {10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 21};
 		this.map.setSolids(solids);
 		
-		this.player = new Player(24f, 148f, map);
+		this.player = new Player(24f, 112f, map);
 		this.player.fall();
 		
+		this.bull = new Texture(Gdx.files.internal(C.path + "Actors/baddies/bullseye.png"));
+		
+		bulls = new LinkedList<Bullseye>();
+		bulls.add(new Bullseye(58, 64, true, false, bull, map, player));
+		bulls.add(new Bullseye(290, 64, false, true, bull, map, player));
+		bulls.add(new Bullseye(356, 224, false, true, bull, map, player));
+		bulls.add(new Bullseye(396, 324, true, true, bull, map, player));
 		
 		this.debug = false;
 	}
@@ -94,6 +106,10 @@ public class TestStage implements Screen
 		
 		if(debug) this.map.editMode(camera);
 		this.player.update(Gdx.graphics.getDeltaTime());
+		
+		for(Bullseye b : bulls)
+			if(!b.isDead())
+				b.update(delta);
 				
 		if(!this.debug && !this.player.isDead())
 		{
@@ -137,9 +153,9 @@ public class TestStage implements Screen
 		if(this.player.position.x < -10)
 			this.player.position.x = -10;
 		
-		if(this.player.position.y < camY - 120f)
+		if(this.player.position.y < camY - 80f)
 		{
-			player.respawn(12f, 128f);
+			player.respawn(12f, 112f);
 			this.player.fallParachute();
 		}
 		
@@ -166,12 +182,17 @@ public class TestStage implements Screen
 		batch.draw(this.background,this.background.getWidth() * 3 + off, offy);
 		batch.draw(this.waterAnimation.getKeyFrame(waterDelta, true), this.background.getWidth() * 3 + off, offy + 17);
 		
-		this.map.draw(camera, batch);
-		
+
 		for(int i = 1; i < 12; i ++)
 		{
 			batch.draw(this.cloud, off + i * (i % 2 == 0? 200 : 70), 96 + offy + (i % 2 == 0? 7 : 2));
 		}
+		
+		this.map.draw(camera, batch);
+		
+		for(Bullseye b : bulls)
+			if(!b.isDead())
+				b.draw(batch);
 		
 		this.player.draw(this.batch);
 	}
@@ -198,6 +219,7 @@ public class TestStage implements Screen
 		this.tiles.dispose();
 		this.water[0].dispose();
 		this.water[1].dispose();
+		this.bull.dispose();
 		this.batch.dispose();
 	}
 

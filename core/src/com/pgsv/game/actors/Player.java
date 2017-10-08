@@ -14,7 +14,7 @@ import com.pgsv.game.stages.Map;
 
 public class Player {
 	
-	private final int IDLE = 0, WALK = 1, JUMP = 3, DEAD = 4;
+	private final int IDLE = 0, WALK = 1, JUMP = 5, DEAD = 6;
 
 	private Map map;
 	public Vector2 position;
@@ -27,12 +27,14 @@ public class Player {
 	private TextureRegion dead;
 	private Animation<TextureRegion> idleAnimation;
 	private Animation<TextureRegion> walkAnimation;
+	private Animation<TextureRegion> walkBlockedAnimation;
 	private Animation<TextureRegion> [] animations;
 	
 	private boolean right;
 	private boolean grounded;
 	private boolean isParachute;
 	private boolean respawn;
+	private boolean blocked;
 	
 	private int jumpCount;
 	private int currentState;
@@ -41,13 +43,15 @@ public class Player {
 	private float angle;
 	private float gravity;
 	
+	private float blockedTime;
+	
 	
 	@SuppressWarnings("unchecked")
 	public Player(float x, float y, Map map)
 	{
 		this.map = map;
 		
-		this.spriteSheet = new Texture(Gdx.files.internal(C.path + "Actors/guy_sheet.png"));
+		this.spriteSheet = new Texture(Gdx.files.internal(C.path + "Actors/hero/guy_sheet.png"));
 		
 		//IDLE ANIMATION
 		TextureRegion [] currentSheet = new TextureRegion[4];
@@ -64,6 +68,14 @@ public class Player {
 			currentSheet[i] = new TextureRegion(this.spriteSheet,16 * i,16,16,16);
 		}
 		this.walkAnimation = new Animation<TextureRegion>(0.15f ,currentSheet);
+		
+		//WALK BLOCKED ANIMATION
+		currentSheet = new TextureRegion[3];
+		for(int i = 0; i < currentSheet.length; i ++)
+		{
+			currentSheet[i] = new TextureRegion(this.spriteSheet,16 * i,64,16,16);
+		}
+		this.walkBlockedAnimation = new Animation<TextureRegion>(0.15f ,currentSheet);
 		
 		//SETTING ANIMATIONS
 		this.animations = new Animation[2];
@@ -91,9 +103,10 @@ public class Player {
 		this.grounded = true;
 		this.isParachute = true;
 		this.respawn = false;
+		this.blocked = false;
 		
 		this.jumpCount = 0;
-		changeState(IDLE);
+		this.blockedTime = 0;
 		
 		this.animationDelta = 0f;
 		this.angle = 0f;
@@ -101,6 +114,8 @@ public class Player {
 		
 		this.position = new Vector2(x, y);
 		this.speed = new Vector2(52f, 60f);
+		
+		changeState(IDLE);
 	}
 	
 	public void update(float delta)
@@ -116,37 +131,61 @@ public class Player {
 		
 		//System.out.println("Tile: " + map.getTile(position.x, position.y));
 		Vector3 tileBottomLeft = this.map.getTileVector(this.position.x + 5, this.position.y - 1);
-		Vector3  tileBottomRight = this.map.getTileVector(this.position.x + 10, this.position.y - 1);
+		Vector3  tileBottomRight = this.map.getTileVector(this.position.x + 10, this.position.y - 1);		
 		
-		Vector3 tileLeft = this.map.getTileVector(this.position.x + 3, this.position.y + 4);
-		Vector3 tileRight = this.map.getTileVector(this.position.x + 13, this.position.y + 4);
+		Vector3 tileLeft = this.map.getTileVector(this.position.x + 3, this.position.y + 6);
+		Vector3 tileRight = this.map.getTileVector(this.position.x + 13, this.position.y + 6);
 		
+		if(this.map.isSolid(tileLeft))
+		{
+			this.position.x = tileLeft.x + 13;
+			this.blockedTime += delta;
+			if(!this.right && this.grounded && this.blockedTime > 0.9f)
+			{
+				this.blocked = true;
+			}
+		}
+		else if(this.map.isSolid(tileRight))
+		{
+			this.position.x = tileRight.x - 13;
+			this.blockedTime += delta;
+			if(this.right && this.grounded && this.blockedTime > 0.9f)
+			{
+				this.blocked = true;
+			}
+		}
+		else
+		{
+			this.blocked = false;
+			this.blockedTime = 0;
+		}
+		
+
 		Vector3 tileTopLeft = this.map.getTileVector(this.position.x + 5, this.position.y + 15);
 		Vector3 tileTopRight = this.map.getTileVector(this.position.x + 10, this.position.y + 15);
 		
-		if(this.gravity > 0)
+		
+		if(this.gravity > 60)
 		{
 			if(this.map.isSolid(tileTopLeft))
 			{
 				this.gravity = 0;
-				this.position.y = tileTopLeft.y - 32;
+				this.position.y = tileTopLeft.y - 30;
 				fall();
 			}
 			else if(this.map.isSolid(tileTopRight))
 			{
 				this.gravity = 0;
-				this.position.y = tileTopRight.y - 32;
+				this.position.y = tileTopRight.y - 30;
 				fall();
 			}
 		}
-		
-		if(this.map.isSolid(tileLeft))
-			this.position.x = tileLeft.x + 13;
-		else if(this.map.isSolid(tileRight))
-			this.position.x = tileRight.x - 13;
+
 			
 		if(!this.grounded)
 		{	
+			this.blocked = false;
+			this.blockedTime = 0;
 			float gravityDelta = 1;
 			if(isParachute) gravityDelta = 0.22f;
 			this.gravity -= delta * 500f * gravityDelta;
@@ -204,14 +243,25 @@ public class Player {
 		{
 			if((this.currentState != JUMP && this.grounded) || (this.currentState == JUMP && this.jumpCount == 1))
 			{
-				changeState(JUMP);
-				this.grounded = false;
-				this.position.y += 4f;
-				this.gravity = this.jumpCount == 1 ? 140f : 164f;
-				this.jumpCount ++;
+				jump(false);
+			}
+			else if(isParachute)
+			{
+				this.isParachute = false;
+				this.gravity = 100f;
 			}
 		}
 		
+	}
+	
+	public void jump(boolean enemy)
+	{
+		changeState(JUMP);
+		this.grounded = false;
+		this.position.y += 4f;
+		if(!enemy)this.gravity = this.jumpCount == 1 ? 140f : 164f;
+		else this.gravity = 180f;
+		this.jumpCount ++;
 	}
 	
 	public boolean isDead()
@@ -272,6 +322,8 @@ public class Player {
 	
 	public void draw(SpriteBatch batch)
 	{
+		float offX = 0;
+		
 		if(this.isParachute)
 		{
 			batch.draw(this.parachute,this.position.x,this.position.y + 7);
@@ -288,6 +340,12 @@ public class Player {
 		{
 			this.currentFrame = dead;
 		}
+		else if(this.currentState == WALK && this.blocked)
+		{
+			this.currentFrame = walkBlockedAnimation.getKeyFrame(this.animationDelta, true);
+			if(!right) offX = 2;
+			else offX = -2;
+		}
 		else
 		{
 			this.currentFrame = this.animations[this.currentState].getKeyFrame(this.animationDelta, true);
@@ -298,7 +356,7 @@ public class Player {
 			this.currentFrame.flip(true, false);
 		}
 		
-		batch.draw(this.currentFrame,this.position.x,this.position.y);
+		batch.draw(this.currentFrame,this.position.x + offX,this.position.y);
 	}
 	
 	public void dispose()
