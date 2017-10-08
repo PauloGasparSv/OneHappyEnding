@@ -20,10 +20,12 @@ public class Bullseye {
 	private TextureRegion currentFrame;
 	private Animation<TextureRegion> walkAnimation;
 	private Animation<TextureRegion> [] animations;
+	private Rectangle rect;
 	
 	private boolean right;
 	private boolean grounded;
 	private boolean smart;
+	private boolean ignoreMe;
 
 	private int currentState;
 	
@@ -37,6 +39,7 @@ public class Bullseye {
 		this.player = player;
 		this.smart = smart;
 		this.right = right;
+		
 		
 		//WALK ANIMATION
 		TextureRegion [] currentSheet = new TextureRegion[6];
@@ -53,12 +56,15 @@ public class Bullseye {
 	
 		this.currentFrame = walkAnimation.getKeyFrame(0);
 		
+		this.rect = new Rectangle();
+		
 		this.init(x, y);
 	}
 	
 	public void init(float x, float y)
 	{
 		this.grounded = true;
+		this.ignoreMe = true;
 		
 		this.animationDelta = 0f;
 		this.gravity = 0f;
@@ -72,6 +78,10 @@ public class Bullseye {
 	
 	public void update(float delta)
 	{	
+		float distX = this.position.x - this.player.position.x; 
+		ignoreMe = distX > 280 || distX < -280;
+		if(ignoreMe || isDead()) return;
+			
 		this.animationDelta += delta;
 		
 		if(this.right)
@@ -127,22 +137,33 @@ public class Bullseye {
 		}
 		
 		if(player.isDead()) return;
-		if(new Rectangle(this.position.x, this.position.y, 16,13).overlaps(
-				new Rectangle(player.position.x + 4, player.position.y + 2, 8,12)))
+		if(player.getRect().overlaps(this.myRect()))
 		{
-			if(player.position.y > this.position.y + 8)
+			if(player.position.y > this.position.y + 2)
 			{
 				die();
 				player.jump(true);
 			}
 			else
+			{
 				player.die();
+			}
 		}
 		
 	}
 	
+	public Rectangle myRect()
+	{
+		this.rect.x = this.position.x + 6;
+		this.rect.y = this.position.y;
+		this.rect.width = 4;
+		this.rect.height = 10;
+		return this.rect;
+	}
+	
 	public void draw(SpriteBatch batch)
 	{
+		if(ignoreMe || isDead()) return;
 		float offX = 0;
 		
 		this.currentFrame = this.animations[this.currentState].getKeyFrame(this.animationDelta, true);

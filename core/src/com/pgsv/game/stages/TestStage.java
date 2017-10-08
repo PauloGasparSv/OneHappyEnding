@@ -1,5 +1,6 @@
 package com.pgsv.game.stages;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 import com.badlogic.gdx.Gdx;
@@ -12,6 +13,7 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.pgsv.game.actors.Bullseye;
+import com.pgsv.game.actors.Coin;
 import com.pgsv.game.actors.Player;
 import com.pgsv.game.consts.C;
 
@@ -23,8 +25,11 @@ public class TestStage implements Screen
 	private Player player;
 	private SpriteBatch batch;
 	private LinkedList<Bullseye> bulls;
+	private ArrayList<Coin> coins;
 	
 	private Texture [] water;
+	private Texture titleCard;
+	private Texture coin;
 	private Texture background;
 	private Texture tiles;
 	private Texture bull;
@@ -32,6 +37,7 @@ public class TestStage implements Screen
 	private TextureRegion cloud;
 	
 	private boolean debug;
+	private float intro;
 	
 	private float off;
 	private float offy;
@@ -49,6 +55,9 @@ public class TestStage implements Screen
 		
 		this.tiles = new Texture(Gdx.files.internal(C.path + "stages/1/tiles.png"));
 		this.background = new Texture(Gdx.files.internal(C.path + "stages/1/back.png"));
+		this.titleCard = new Texture(Gdx.files.internal(C.path + "stages/1/titleCard.png"));
+		this.coin = new Texture(Gdx.files.internal(C.path + "stages/coin.png"));
+		TextureRegion coinRegion = new TextureRegion(coin);
 		
 		TextureRegion [] tilesRegion = new TextureRegion[3 * 7];
 		int current = 0;
@@ -82,7 +91,7 @@ public class TestStage implements Screen
 		this.waterDelta = 0f;
 		
 		this.map = new Map("testMap", tilesRegion);
-		int [] solids = {10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 21};
+		int [] solids = {10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 21, 22};
 		this.map.setSolids(solids);
 		
 		this.player = new Player(24f, 112f, map);
@@ -90,26 +99,39 @@ public class TestStage implements Screen
 		
 		this.bull = new Texture(Gdx.files.internal(C.path + "Actors/baddies/bullseye.png"));
 		
-		bulls = new LinkedList<Bullseye>();
-		bulls.add(new Bullseye(58, 64, true, false, bull, map, player));
-		bulls.add(new Bullseye(290, 64, false, true, bull, map, player));
-		bulls.add(new Bullseye(356, 224, false, true, bull, map, player));
-		bulls.add(new Bullseye(396, 324, true, true, bull, map, player));
+		this.bulls = new LinkedList<Bullseye>();
+		this.coins = new ArrayList<Coin>();
 		
+		this.bulls.add(new Bullseye(230, 72, false, true, bull, map, player));
+		this.bulls.add(new Bullseye(426, 102, true, false, bull, map, player));
+		this.bulls.add(new Bullseye(640, 32, true, false, bull, map, player));
+		this.bulls.add(new Bullseye(1200, 54, false, true, bull, map, player));
+		
+		this.coins.add(new Coin(coinRegion, player, 20, 64));
+		
+		this.intro = 0;
 		this.debug = false;
 	}
 	
 	public void update(float delta)
 	{
+		
+		this.intro += delta * 55 + delta * this.intro / 3f;
+		System.out.println(this.intro);
 		if(Gdx.input.isKeyJustPressed(Input.Keys.F2)) this.debug = !this.debug;
 		if(Gdx.input.isKeyJustPressed(Input.Keys.F4)) this.player.die();
 		
 		if(debug) this.map.editMode(camera);
-		this.player.update(Gdx.graphics.getDeltaTime());
-		
-		for(Bullseye b : bulls)
-			if(!b.isDead())
+		else
+		{
+			this.player.update(Gdx.graphics.getDeltaTime());
+			
+			for(Bullseye b : bulls)
 				b.update(delta);
+			
+			for(Coin c : coins)
+				c.update(delta);
+		}
 				
 		if(!this.debug && !this.player.isDead())
 		{
@@ -155,7 +177,7 @@ public class TestStage implements Screen
 		
 		if(this.player.position.y < camY - 80f)
 		{
-			player.respawn(12f, 112f);
+			player.respawn(1060f, 112f);
 			this.player.fallParachute();
 		}
 		
@@ -191,10 +213,28 @@ public class TestStage implements Screen
 		this.map.draw(camera, batch);
 		
 		for(Bullseye b : bulls)
-			if(!b.isDead())
-				b.draw(batch);
+			b.draw(batch);
+		for(Coin c : coins)
+			c.draw(batch);
 		
 		this.player.draw(this.batch);
+		
+		if(this.intro < 2000)
+		{
+			if(this.intro < 280)
+			{
+				batch.draw(this.titleCard, camera.position.x + 160 - this.intro, camera.position.y + 24);	
+			}
+			else if(this.intro < 600)
+			{
+				batch.draw(this.titleCard, camera.position.x + 160 - 280, camera.position.y + 24);
+			}
+			else
+			{
+				batch.draw(this.titleCard, camera.position.x + 160 + 320 - this.intro, camera.position.y + 24);
+			}
+			
+		}
 	}
 	
 	
@@ -220,6 +260,8 @@ public class TestStage implements Screen
 		this.water[0].dispose();
 		this.water[1].dispose();
 		this.bull.dispose();
+		this.coin.dispose();
+		this.titleCard.dispose();
 		this.batch.dispose();
 	}
 

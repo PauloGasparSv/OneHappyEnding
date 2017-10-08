@@ -108,6 +108,8 @@ public class Map {
 		int x = (int) ( Gdx.input.getX() * 0.2f  + camera.position.x - camera.viewportWidth / 2f);
 		int y = (int) (144 - Gdx.input.getY()  * 0.2f + camera.position.y - camera.viewportHeight / 2f);
 		
+		System.out.println("X: " + x + " Y: " + y);
+		
 		if(Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) && Gdx.input.isKeyPressed(Input.Keys.C))
 		{
 			ribbon = getTile(x, y);

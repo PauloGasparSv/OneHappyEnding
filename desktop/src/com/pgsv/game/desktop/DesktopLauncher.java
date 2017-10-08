@@ -11,8 +11,9 @@ public class DesktopLauncher {
 		config.resizable = false;
 		config.width = 1280;
 		config.height = 720;
+		config.fullscreen = false;
 		new LwjglApplication(new MyGdxGame(), config);
 	}
 }
 //CREDIT
-//THE GENERIC PLATFORMER GUY
+//THE GENERIC PLATFORMER G

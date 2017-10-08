@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.pgsv.game.consts.C;
@@ -29,6 +30,7 @@ public class Player {
 	private Animation<TextureRegion> walkAnimation;
 	private Animation<TextureRegion> walkBlockedAnimation;
 	private Animation<TextureRegion> [] animations;
+	private Rectangle hitBox;
 	
 	private boolean right;
 	private boolean grounded;
@@ -94,6 +96,8 @@ public class Player {
 		
 		this.currentFrame = new TextureRegion(this.spriteSheet,0,0,16,16);
 		
+		this.hitBox = new Rectangle();
+		
 		this.init(x, y);
 	}
 	
@@ -113,7 +117,7 @@ public class Player {
 		this.gravity = 0f;
 		
 		this.position = new Vector2(x, y);
-		this.speed = new Vector2(52f, 60f);
+		this.speed = new Vector2(60f, 60f);
 		
 		changeState(IDLE);
 	}
@@ -130,8 +134,8 @@ public class Player {
 		this.animationDelta += delta;
 		
 		//System.out.println("Tile: " + map.getTile(position.x, position.y));
-		Vector3 tileBottomLeft = this.map.getTileVector(this.position.x + 5, this.position.y - 1);
-		Vector3  tileBottomRight = this.map.getTileVector(this.position.x + 10, this.position.y - 1);		
+		Vector3 tileBottomLeft = this.map.getTileVector(this.position.x + 4, this.position.y - 1);
+		Vector3  tileBottomRight = this.map.getTileVector(this.position.x + 11, this.position.y - 1);		
 		
 		Vector3 tileLeft = this.map.getTileVector(this.position.x + 3, this.position.y + 6);
 		Vector3 tileRight = this.map.getTileVector(this.position.x + 13, this.position.y + 6);
@@ -254,14 +258,28 @@ public class Player {
 		
 	}
 	
+	public Rectangle getRect()
+	{
+		this.hitBox.x = this.position.x;
+		this.hitBox.y = this.position.y;
+		this.hitBox.width = 16;
+		this.hitBox.height = 13;
+		return this.hitBox;
+	}
+	
 	public void jump(boolean enemy)
 	{
 		changeState(JUMP);
 		this.grounded = false;
 		this.position.y += 4f;
-		if(!enemy)this.gravity = this.jumpCount == 1 ? 140f : 164f;
-		else this.gravity = 180f;
 		this.jumpCount ++;
+		if(!enemy)
+			this.gravity = this.jumpCount == 1 ? 140f : 164f;
+		else 
+		{
+			this.gravity = 180f;
+			this.jumpCount = 1;
+		}
 	}
 	
 	public boolean isDead()
