@@ -1,38 +1,143 @@
 package com.pgsv.game.stages;
 
+import javax.swing.JOptionPane;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector3;
+import com.pgsv.game.consts.C;
 
 public class Map {
 
 	public int [][] map;
 	private TextureRegion [] tiles;
+	private boolean isTouched;
+	private long lastTouched;
+	private int ribbon;
+	private String path;
+	private int [] solids;
 	
-	public Map(int w, int h, TextureRegion [] tiles)
+	public Map(int w, int h, String path,TextureRegion [] tiles)
 	{
 		this.map = new int[h][w];
-		
-		int i[][] = 
-		{
-			{10,11,11,11,11,11,11,11,11,11,11,0,0,11,11,12},
-			{0,0,0,0,0,11,0,0,0,0,0,0,0,0,0,0},
-			{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-			{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-			{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-			{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-			{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-			{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-			{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		};
-		this.map = i;
-		
+		this.solids = new int[0];
+		this.ribbon = 0;
 		this.tiles = tiles;
+		this.isTouched = false;
+		this.path = path + ".broc";
+		this.lastTouched = System.currentTimeMillis();
 	}
 	
-	public void changeTile()
+	public Map(String path, TextureRegion [] tiles)
 	{
+		this.ribbon = 0;
+		this.tiles = tiles;
+		this.solids = new int[0];
+		this.isTouched = false;
+		this.lastTouched = System.currentTimeMillis();
+		this.path = path  + ".broc";
+		
+		FileHandle mapFile = Gdx.files.internal(C.path + "maps/" + this.path );
+		String mapText = mapFile.readString();
+		
+		String [] lines = mapText.split("\n");
+		String []temp = lines[0].split(" ");
+		int w = Integer.parseInt(temp[0]);
+		int h = Integer.parseInt(temp[1]);
+		
+		this.map = new int[h][w];
+		
+		for(int line = 1; line < lines.length; line ++)
+		{
+			temp = lines[line].split(" ");
+			for(int col = 0; col < w; col ++)
+			{
+				this.map[line - 1][col] = Integer.parseInt(temp[col]);
+			}
+		}
+		
+	}
+	
+	public void setSolids(int [] solids)
+	{
+		this.solids = solids;
+	}
+	
+	public boolean isSolid(int tile)
+	{
+		if(tile == 0) return false;
+		for(int i : solids) if(tile == i) return true;
+		return false;
+	}
+	
+	public boolean isSolid(Vector3 tile)
+	{
+		if(tile.z == 0) return false;
+		for(int i : solids) if(tile.z == i) return true;
+		return false;
+	}
+	
+	public void changeTile(int x, int y)
+	{
+		if(x < 0) x = 0;
+		if(y < 0) y = 0;
+		if(x > map[0].length - 1) x = map[0].length - 1;
+		if(y > map.length - 1) y = map.length - 1;
+		
+		this.map[y][x] ++;
+		if(this.map[y][x] > tiles.length)this.map[y][x] = 0;
+		
+	}
+	
+	public void changeTile(int x, int y, int tile)
+	{
+		if(x < 0) x = 0;
+		if(y < 0) y = 0;
+		if(x > map[0].length - 1) x = map[0].length - 1;
+		if(y > map.length - 1) y = map.length - 1;
+		
+		this.map[y][x] = tile;		
+	}
+	
+	public void editMode(OrthographicCamera camera)
+	{
+		int x = (int) ( Gdx.input.getX() * 0.2f  + camera.position.x - camera.viewportWidth / 2f);
+		int y = (int) (144 - Gdx.input.getY()  * 0.2f + camera.position.y - camera.viewportHeight / 2f);
+		
+		if(Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) && Gdx.input.isKeyPressed(Input.Keys.C))
+		{
+			ribbon = getTile(x, y);
+		}
+		
+		if(Gdx.input.isButtonPressed(1))
+		{
+			if(!isTouched)
+			{
+				isTouched = true;
+				lastTouched = System.currentTimeMillis();
+				changeTile(x / 16,y / 16);
+			}
+			else if(System.currentTimeMillis() - lastTouched > 200)
+			{
+				isTouched = false;
+			}
+		}
+		else
+			isTouched = false;
+		
+		if(Gdx.input.isButtonPressed(0))
+		{
+			changeTile(x / 16,y / 16, ribbon);
+		}
+			
+		if(Gdx.input.isKeyJustPressed(Input.Keys.F1))
+		{
+			saveMap();
+		}
 		
 	}
 	
@@ -52,8 +157,8 @@ public class Map {
 		int tileX = (int)(x / 16);
 		int tileY = (int)(y / 16);
 		
-		info.x = tileX;
-		info.y = tileY;
+		info.x = tileX * 16;
+		info.y = tileY * 16  + 16;
 		
 		if(tileX > map[0].length - 1 || tileY > map.length - 1 || tileX < 0 || tileY < 0) info.z = 0;
 		else info.z = map[tileY][tileX];
@@ -86,6 +191,24 @@ public class Map {
 				batch.draw(this.tiles[tile - 1], col * 16, line * 16);
 			}
 		}
+	}
+	
+	public void saveMap()
+	{
+		String mapFile = map[0].length+" "+map.length;
+		
+		for(int line = 0; line < map.length; line ++)
+		{
+			mapFile += "\n";
+			for(int col = 0; col < map[0].length; col ++)
+			{
+				mapFile += map[line][col] + " ";
+			}
+		}
+		
+		FileHandle file = Gdx.files.absolute("C:/temp/" + path);	
+		file.writeString(mapFile, false);		
+		JOptionPane.showMessageDialog(null, "END");
 	}
 	
 }

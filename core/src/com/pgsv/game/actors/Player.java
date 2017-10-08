@@ -1,5 +1,6 @@
 package com.pgsv.game.actors;
 
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
@@ -40,14 +41,11 @@ public class Player {
 	
 	
 	@SuppressWarnings("unchecked")
-	public Player(Map map)
+	public Player(float x, float y, Map map)
 	{
 		this.map = map;
 		
 		this.spriteSheet = new Texture(Gdx.files.internal(C.path + "Actors/guy_sheet.png"));
-		
-		if(this.spriteSheet == null)
-			System.out.println("WHAAT");
 		
 		//IDLE ANIMATION
 		TextureRegion [] currentSheet = new TextureRegion[4];
@@ -80,10 +78,10 @@ public class Player {
 		
 		this.currentFrame = new TextureRegion(this.spriteSheet,0,0,16,16);
 		
-		this.init();
+		this.init(x, y);
 	}
 	
-	public void init()
+	public void init(float x, float y)
 	{
 		this.right = true;
 		this.grounded = true;
@@ -96,7 +94,7 @@ public class Player {
 		this.angle = 0f;
 		this.gravity = 0f;
 		
-		this.position = new Vector2(0f, 54f);
+		this.position = new Vector2(x, y);
 		this.speed = new Vector2(52f, 60f);
 	}
 	
@@ -107,18 +105,37 @@ public class Player {
 		this.animationDelta += delta;
 		
 		//System.out.println("Tile: " + map.getTile(position.x, position.y));
-		Vector3 tileBottomLeft = map.getTileVector(position.x + 3, position.y - 1);
-		Vector3  tileBottomRight = map.getTileVector(position.x + 12, position.y - 1);
+		Vector3 tileBottomLeft = this.map.getTileVector(this.position.x + 5, this.position.y - 1);
+		Vector3  tileBottomRight = this.map.getTileVector(this.position.x + 10, this.position.y - 1);
+		
+		Vector3 tileLeft = this.map.getTileVector(this.position.x + 3, this.position.y + 4);
+		Vector3 tileRight = this.map.getTileVector(this.position.x + 13, this.position.y + 4);
+		
+		if(this.map.isSolid(tileLeft))
+			this.position.x = tileLeft.x + 13;
+		else if(this.map.isSolid(tileRight))
+			this.position.x = tileRight.x - 13;
+			
+		
+		System.out.println(tileLeft.z);
 		
 		if(!this.grounded)
 		{	
 			float gravityDelta = 1;
-			if(isParachute) gravityDelta = 0.18f;
+			if(isParachute) gravityDelta = 0.22f;
 			this.gravity -= delta * 500f * gravityDelta;
-			this.position.y += gravity * delta * gravityDelta;
-			if(tileBottomLeft.z > 9 || tileBottomRight.z > 9)
+			if(this.gravity < - 200f) this.gravity = -200f;
+			this.position.y += this.gravity * delta * gravityDelta;
+			if(this.gravity < 0)				
 			{
-				ground((tileBottomLeft.y + 1) * 16 - 1);
+				if(this.map.isSolid(tileBottomLeft) && this.position.y > tileBottomLeft.y - 8 )
+				{
+					ground(tileBottomLeft.y- 1);
+				}
+				else if(this.map.isSolid(tileBottomRight) && this.position.y > tileBottomRight.y - 8)
+				{
+					ground(tileBottomRight.y - 1);	
+				}
 			}
 		}
 		else
@@ -135,19 +152,19 @@ public class Player {
 	{
 		if(Gdx.input.isKeyPressed(Input.Keys.RIGHT))
 		{
-			right = true;
-			if(currentState == IDLE)changeState(WALK);
+			this.right = true;
+			if(this.currentState == IDLE) this.changeState(WALK);
 			this.position.x += delta * this.speed.x;
 		}
 		else if(Gdx.input.isKeyPressed(Input.Keys.LEFT))
 		{
-			right = false;
-			if(currentState == IDLE)changeState(WALK);
+			this.right = false;
+			if(this.currentState == this.IDLE) this.changeState(WALK);
 			this.position.x -= delta * this.speed.x;	
 		}
 		else
 		{
-			if(currentState == WALK)changeState(IDLE);
+			if(this.currentState == WALK) this.changeState(IDLE);
 		}
 		
 		if(Gdx.input.isKeyJustPressed(Input.Keys.Z))
@@ -166,8 +183,8 @@ public class Player {
 	
 	private void changeState(int state)
 	{
-		animationDelta = 0f;
-		currentState = state;
+		this.animationDelta = 0f;
+		this.currentState = state;
 	}
 	
 	public void ground(float y)
@@ -227,7 +244,7 @@ public class Player {
 	
 	public void dispose()
 	{
-		spriteSheet.dispose();
+		this.spriteSheet.dispose();
 	}
 
 }
