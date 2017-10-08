@@ -121,12 +121,30 @@ public class Player {
 		Vector3 tileLeft = this.map.getTileVector(this.position.x + 3, this.position.y + 4);
 		Vector3 tileRight = this.map.getTileVector(this.position.x + 13, this.position.y + 4);
 		
+		Vector3 tileTopLeft = this.map.getTileVector(this.position.x + 5, this.position.y + 15);
+		Vector3 tileTopRight = this.map.getTileVector(this.position.x + 10, this.position.y + 15);
+		
+		if(this.gravity > 0)
+		{
+			if(this.map.isSolid(tileTopLeft))
+			{
+				this.gravity = 0;
+				this.position.y = tileTopLeft.y - 32;
+				fall();
+			}
+			else if(this.map.isSolid(tileTopRight))
+			{
+				this.gravity = 0;
+				this.position.y = tileTopRight.y - 32;
+				fall();
+			}
+		}
+		
 		if(this.map.isSolid(tileLeft))
 			this.position.x = tileLeft.x + 13;
 		else if(this.map.isSolid(tileRight))
 			this.position.x = tileRight.x - 13;
 			
-		
 		if(!this.grounded)
 		{	
 			float gravityDelta = 1;
