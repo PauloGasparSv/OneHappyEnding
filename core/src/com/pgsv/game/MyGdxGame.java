@@ -3,10 +3,10 @@ package com.pgsv.game;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.controllers.Controller;
+import com.badlogic.gdx.controllers.Controllers;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.pgsv.game.actors.Player;
+import com.pgsv.game.consts.C;
 import com.pgsv.game.stages.TestStage;
 
 public class MyGdxGame extends Game {
@@ -17,6 +17,15 @@ public class MyGdxGame extends Game {
 	public void create () 
 	{
 		this.batch = new SpriteBatch();
+		
+		Controller myController = null;
+		for (Controller controller : Controllers.getControllers()) 
+		{
+			myController = controller;
+			break;
+		}
+		C.in = myController;
+		
 		setScreen(new TestStage(batch));
 	}
 

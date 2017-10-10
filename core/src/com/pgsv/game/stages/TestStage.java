@@ -20,6 +20,7 @@ import com.pgsv.game.actors.Bullseye;
 import com.pgsv.game.actors.Coin;
 import com.pgsv.game.actors.Player;
 import com.pgsv.game.consts.C;
+import com.pgsv.game.utils.TextInput;
 
 public class TestStage implements Screen
 {
@@ -140,9 +141,10 @@ public class TestStage implements Screen
 	{
 		
 		this.intro += delta * 55 + delta * this.intro / 3f;
-		System.out.println(this.intro);
+		
 		if(Gdx.input.isKeyJustPressed(Input.Keys.F2)) this.debug = !this.debug;
 		if(Gdx.input.isKeyJustPressed(Input.Keys.F4)) this.player.die();
+		
 		
 		if(debug) this.map.editMode(camera);
 		else
@@ -200,8 +202,16 @@ public class TestStage implements Screen
 		
 		if(this.player.position.y < camY - 80f)
 		{
-			player.respawn(1060f, 112f);
-			this.player.fallParachute();
+			if(!player.isDead())
+			{
+				player.position.y = camY - 24f;
+				player.die();
+			}
+			else
+			{
+				player.respawn(1060f, 112f);
+				this.player.fallParachute();
+			}
 		}
 		
 		this.off = camX / 1.2f;

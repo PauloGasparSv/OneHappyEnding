@@ -131,7 +131,7 @@ public class Bullseye {
 		}
 		else
 		{
-			if(tileBottomLeft.z < 10 && tileBottomRight.z < 10)
+			if(!this.map.isSolid(tileBottomLeft)  && !this.map.isSolid(tileBottomRight))
 			{
 				if(!this.smart) fall();
 				else this.right = !this.right;

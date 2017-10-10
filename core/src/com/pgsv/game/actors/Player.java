@@ -4,6 +4,8 @@ package com.pgsv.game.actors;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.controllers.Controller;
+import com.badlogic.gdx.controllers.mappings.Xbox;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -12,6 +14,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.pgsv.game.consts.C;
+import com.pgsv.game.consts.IpegaPc;
 import com.pgsv.game.stages.Map;
 
 public class Player {
@@ -19,6 +22,8 @@ public class Player {
 	private final int IDLE = 0, WALK = 1, JUMP = 5, DEAD = 6;
 
 	private Map map;
+	
+	private Controller in;
 	
 	public Vector2 position;
 	private Vector2 speed;
@@ -43,6 +48,7 @@ public class Player {
 	private boolean isParachute;
 	private boolean respawn;
 	private boolean blocked;
+	private boolean pressingJump; //CONTROLLER ONLY
 	
 	private int jumpCount;
 	private int currentState;
@@ -105,6 +111,8 @@ public class Player {
 		
 		this.jumpSound = Gdx.audio.newSound(Gdx.files.internal(C.path+"SFX/Jump.wav"));
 		
+		this.in = C.in;
+		
 		this.hitBox = new Rectangle();
 		
 		this.init(x, y);
@@ -117,6 +125,7 @@ public class Player {
 		this.isParachute = true;
 		this.respawn = false;
 		this.blocked = false;
+		this.pressingJump = false;
 		
 		this.jumpCount = 0;
 		this.blockedTime = 0;
@@ -219,7 +228,7 @@ public class Player {
 		}
 		else
 		{
-			if(tileBottomLeft.z < 10 && tileBottomRight.z < 10)
+			if(!this.map.isSolid(tileBottomLeft)  && !this.map.isSolid(tileBottomRight))
 			{
 				fall();
 			}
@@ -235,6 +244,14 @@ public class Player {
 	}
 	
 	private void controls(float delta)
+	{
+		if(this.in == null) keyboard(delta);
+		else controller(delta);
+		
+		
+	}
+	
+	private void keyboard(float delta)
 	{
 		if(Gdx.input.isKeyPressed(Input.Keys.RIGHT))
 		{
@@ -265,7 +282,48 @@ public class Player {
 				this.gravity = 100f;
 			}
 		}
+	}
+	
+	private void controller(float delta)
+	{
+		System.out.println(in.getAxis(IpegaPc.AXIS_RIGHT_X) );
+		if(in.getAxis(IpegaPc.AXIS_RIGHT_X) > 0.2f)
+		{
+			this.right = true;
+			if(this.currentState == IDLE) this.changeState(WALK);
+			this.position.x += delta * this.speed.x;
+		}
+		else if(in.getAxis(IpegaPc.AXIS_RIGHT_X) < -0.2f)
+		{
+			this.right = false;
+			if(this.currentState == this.IDLE) this.changeState(WALK);
+			this.position.x -= delta * this.speed.x;	
+		}
+		else
+		{
+			if(this.currentState == WALK) this.changeState(IDLE);
+		}
 		
+		if(in.getButton(IpegaPc.BUTTON_A))
+		{
+			if(!this.pressingJump)
+			{
+				this.pressingJump = true;
+				if((this.currentState != JUMP && this.grounded) || (this.currentState == JUMP && this.jumpCount == 1))
+				{
+					jump(false);
+				}
+				else if(isParachute)
+				{
+					this.isParachute = false;
+					this.gravity = 100f;
+				}
+			}
+		}
+		else
+		{
+			this.pressingJump = false;
+		}
 	}
 	
 	public void draw(SpriteBatch batch)
