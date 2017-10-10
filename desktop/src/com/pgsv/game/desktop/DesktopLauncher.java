@@ -16,4 +16,7 @@ public class DesktopLauncher {
 	}
 }
 //CREDIT
-//THE GENERIC PLATFORMER G
+//ART: GrafxKid http://grafxkid.tumblr.com/
+//FONT: GravityGames https://opengameart.org/users/gravitygames
+//SFX: 8-bit Platformer SFX commissioned by Mark McCorkle for OpenGameArt.org ( http://opengameart.org )
+//Avgvst - Dispersion Found: t4ngr4m https://opengameart.org/users/t4ngr4m

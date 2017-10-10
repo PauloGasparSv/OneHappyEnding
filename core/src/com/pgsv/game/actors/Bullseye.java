@@ -57,6 +57,8 @@ public class Bullseye {
 		this.currentFrame = walkAnimation.getKeyFrame(0);
 		
 		this.rect = new Rectangle();
+		this.rect.width = 4;
+		this.rect.height = 10;
 		
 		this.init(x, y);
 	}
@@ -156,8 +158,7 @@ public class Bullseye {
 	{
 		this.rect.x = this.position.x + 6;
 		this.rect.y = this.position.y;
-		this.rect.width = 4;
-		this.rect.height = 10;
+
 		return this.rect;
 	}
 	

@@ -3,9 +3,13 @@ package com.pgsv.game.stages;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
+import javax.swing.JOptionPane;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -19,13 +23,19 @@ import com.pgsv.game.consts.C;
 
 public class TestStage implements Screen
 {
-	private Animation<TextureRegion> waterAnimation;
 	private Map map;
-	private OrthographicCamera camera;
+	
 	private Player player;
+	
+	private OrthographicCamera camera;
 	private SpriteBatch batch;
-	private LinkedList<Bullseye> bulls;
+	
 	private ArrayList<Coin> coins;
+	private LinkedList<Bullseye> bulls;
+	
+	private Music theme;
+	
+	private Sound coinSound;
 	
 	private Texture [] water;
 	private Texture titleCard;
@@ -33,6 +43,8 @@ public class TestStage implements Screen
 	private Texture background;
 	private Texture tiles;
 	private Texture bull;
+	
+	private Animation<TextureRegion> waterAnimation;
 	
 	private TextureRegion cloud;
 	
@@ -44,8 +56,7 @@ public class TestStage implements Screen
 	private float waterDelta;
 	
 	private float [] cloudX;
-	private float [] cloudY;
-		
+	
 	public TestStage(SpriteBatch batch) {
 		super();
 		this.batch = batch;
@@ -57,11 +68,16 @@ public class TestStage implements Screen
 		this.background = new Texture(Gdx.files.internal(C.path + "stages/1/back.png"));
 		this.titleCard = new Texture(Gdx.files.internal(C.path + "stages/1/titleCard.png"));
 		this.coin = new Texture(Gdx.files.internal(C.path + "stages/coin.png"));
-		TextureRegion coinRegion = new TextureRegion(coin);
 		
-		TextureRegion [] tilesRegion = new TextureRegion[3 * 7];
+		TextureRegion [] coinRegion = new TextureRegion[4];
+		for(int i = 0; i < 4; i++)
+		{
+			coinRegion[i] = new TextureRegion(coin, i * 16, 0, 16, 16);
+		}
+		
+		TextureRegion [] tilesRegion = new TextureRegion[3 * 11];
 		int current = 0;
-		for(int line = 0; line < 7; line ++)
+		for(int line = 0; line < 11; line ++)
 		{
 			for(int col = 0; col < 3; col ++)
 			{
@@ -70,13 +86,19 @@ public class TestStage implements Screen
 			}
 		}
 		
+		this.theme = Gdx.audio.newMusic(Gdx.files.internal(C.path + "Music/The Adventure Begins 8-bit remix.ogg"));
+		this.theme.play();
+		this.theme.setVolume(0.25f);
+		this.theme.setLooping(true);
+		
+		this.coinSound = Gdx.audio.newSound(Gdx.files.internal(C.path + "SFX/Pickup_Coin.wav"));
+		
 		this.water = new Texture[2];
 		this.water[0] = new Texture(Gdx.files.internal(C.path + "stages/1/back_river_1.png"));
 		this.water[1] = new Texture(Gdx.files.internal(C.path + "stages/1/back_river_2.png"));
 		
 		this.cloud = new TextureRegion(tiles, 32, 0, 16, 16);
 		this.cloudX = new float[3];
-		this.cloudY = new float[3];
 		for(int i = 0; i < 3; i ++) cloudX[i] = -200;
 		
 		TextureRegion [] waterRegion = new TextureRegion[2];
@@ -91,7 +113,7 @@ public class TestStage implements Screen
 		this.waterDelta = 0f;
 		
 		this.map = new Map("testMap", tilesRegion);
-		int [] solids = {10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 21, 22};
+		int [] solids = {10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 21};
 		this.map.setSolids(solids);
 		
 		this.player = new Player(24f, 112f, map);
@@ -107,7 +129,8 @@ public class TestStage implements Screen
 		this.bulls.add(new Bullseye(640, 32, true, false, bull, map, player));
 		this.bulls.add(new Bullseye(1200, 54, false, true, bull, map, player));
 		
-		this.coins.add(new Coin(coinRegion, player, 20, 64));
+		for(int i = 16; i < 22; i ++)
+			this.coins.add(new Coin(coinRegion, player, coinSound, 16 * i, 88));
 		
 		this.intro = 0;
 		this.debug = false;
@@ -254,6 +277,7 @@ public class TestStage implements Screen
 	@Override
 	public void dispose() 
 	{
+		JOptionPane.showMessageDialog(null, "DISPOSE ME");
 		this.player.dispose();
 		this.background.dispose();
 		this.tiles.dispose();
@@ -262,6 +286,7 @@ public class TestStage implements Screen
 		this.bull.dispose();
 		this.coin.dispose();
 		this.titleCard.dispose();
+		this.coinSound.dispose();
 		this.batch.dispose();
 	}
 

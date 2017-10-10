@@ -3,6 +3,7 @@ package com.pgsv.game.actors;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -18,19 +19,24 @@ public class Player {
 	private final int IDLE = 0, WALK = 1, JUMP = 5, DEAD = 6;
 
 	private Map map;
+	
 	public Vector2 position;
 	private Vector2 speed;
+	private Rectangle hitBox;
+	
+	private Sound jumpSound;
+	
 	private Texture spriteSheet;
 	private TextureRegion[] jump;
 	private TextureRegion currentFrame;
 	private TextureRegion fall;
 	private TextureRegion parachute;
 	private TextureRegion dead;
+	
 	private Animation<TextureRegion> idleAnimation;
 	private Animation<TextureRegion> walkAnimation;
 	private Animation<TextureRegion> walkBlockedAnimation;
 	private Animation<TextureRegion> [] animations;
-	private Rectangle hitBox;
 	
 	private boolean right;
 	private boolean grounded;
@@ -40,6 +46,7 @@ public class Player {
 	
 	private int jumpCount;
 	private int currentState;
+	private int coins;
 	
 	private float animationDelta;
 	private float angle;
@@ -96,6 +103,8 @@ public class Player {
 		
 		this.currentFrame = new TextureRegion(this.spriteSheet,0,0,16,16);
 		
+		this.jumpSound = Gdx.audio.newSound(Gdx.files.internal(C.path+"SFX/Jump.wav"));
+		
 		this.hitBox = new Rectangle();
 		
 		this.init(x, y);
@@ -111,6 +120,7 @@ public class Player {
 		
 		this.jumpCount = 0;
 		this.blockedTime = 0;
+		this.coins = 0;
 		
 		this.animationDelta = 0f;
 		this.angle = 0f;
@@ -132,11 +142,7 @@ public class Player {
 		controls(delta);
 		
 		this.animationDelta += delta;
-		
-		//System.out.println("Tile: " + map.getTile(position.x, position.y));
-		Vector3 tileBottomLeft = this.map.getTileVector(this.position.x + 4, this.position.y - 1);
-		Vector3  tileBottomRight = this.map.getTileVector(this.position.x + 11, this.position.y - 1);		
-		
+	
 		Vector3 tileLeft = this.map.getTileVector(this.position.x + 3, this.position.y + 6);
 		Vector3 tileRight = this.map.getTileVector(this.position.x + 13, this.position.y + 6);
 		
@@ -185,7 +191,11 @@ public class Player {
 			}
 		}
 
-			
+		
+		//System.out.println("Tile: " + map.getTile(position.x, position.y));
+		Vector3 tileBottomLeft = this.map.getTileVector(this.position.x + 4, this.position.y - 1);
+		Vector3  tileBottomRight = this.map.getTileVector(this.position.x + 11, this.position.y - 1);		
+		
 		if(!this.grounded)
 		{	
 			this.blocked = false;
@@ -258,6 +268,45 @@ public class Player {
 		
 	}
 	
+	public void draw(SpriteBatch batch)
+	{
+		float offX = 0;
+		
+		if(this.isParachute)
+		{
+			batch.draw(this.parachute,this.position.x,this.position.y + 7);
+		}
+
+		if(this.currentState == JUMP)
+		{
+			if(this.gravity > - 40f * jumpCount)
+				this.currentFrame = this.jump[this.jumpCount < 2 ? 0 : 1];
+			else
+				this.currentFrame = this.fall;
+		}
+		else if(this.currentState == DEAD)
+		{
+			this.currentFrame = dead;
+		}
+		else if(this.currentState == WALK && this.blocked)
+		{
+			this.currentFrame = walkBlockedAnimation.getKeyFrame(this.animationDelta, true);
+			if(!right) offX = 2;
+			else offX = -2;
+		}
+		else
+		{
+			this.currentFrame = this.animations[this.currentState].getKeyFrame(this.animationDelta, true);
+		}
+		
+		if(this.currentFrame.isFlipX() == this.right)
+		{
+			this.currentFrame.flip(true, false);
+		}
+		
+		batch.draw(this.currentFrame,this.position.x + offX,this.position.y,0,0,16,16,1,1,angle);
+	}
+	
 	public Rectangle getRect()
 	{
 		this.hitBox.x = this.position.x;
@@ -270,6 +319,18 @@ public class Player {
 	public void jump(boolean enemy)
 	{
 		changeState(JUMP);
+		long id = this.jumpSound.play(0.1f);
+		if(enemy)
+		{
+			this.jumpSound.setPitch(id, 1.4f);
+			this.jumpSound.setVolume(id, 0.07f);
+		}
+		else if(jumpCount > 0)
+		{
+			this.jumpSound.setPitch(id, 1.7f);
+			this.jumpSound.setVolume(id, 0.07f);
+		}
+		
 		this.grounded = false;
 		this.position.y += 4f;
 		this.jumpCount ++;
@@ -300,6 +361,16 @@ public class Player {
 	{
 		this.animationDelta = 0f;
 		this.currentState = state;
+	}
+	
+	public int getCoins()
+	{
+		return this.coins;
+	}
+	
+	public void addCoin(int coins)
+	{
+		this.coins += coins;
 	}
 	
 	public boolean isRespawn()
@@ -338,48 +409,12 @@ public class Player {
 		changeState(JUMP);
 	}
 	
-	public void draw(SpriteBatch batch)
-	{
-		float offX = 0;
-		
-		if(this.isParachute)
-		{
-			batch.draw(this.parachute,this.position.x,this.position.y + 7);
-		}
-
-		if(this.currentState == JUMP)
-		{
-			if(this.gravity > - 40f * jumpCount)
-				this.currentFrame = this.jump[this.jumpCount < 2 ? 0 : 1];
-			else
-				this.currentFrame = this.fall;
-		}
-		else if(this.currentState == DEAD)
-		{
-			this.currentFrame = dead;
-		}
-		else if(this.currentState == WALK && this.blocked)
-		{
-			this.currentFrame = walkBlockedAnimation.getKeyFrame(this.animationDelta, true);
-			if(!right) offX = 2;
-			else offX = -2;
-		}
-		else
-		{
-			this.currentFrame = this.animations[this.currentState].getKeyFrame(this.animationDelta, true);
-		}
-		
-		if(this.currentFrame.isFlipX() == this.right)
-		{
-			this.currentFrame.flip(true, false);
-		}
-		
-		batch.draw(this.currentFrame,this.position.x + offX,this.position.y);
-	}
+	
 	
 	public void dispose()
 	{
 		this.spriteSheet.dispose();
+		this.jumpSound.dispose();
 	}
 
 }
