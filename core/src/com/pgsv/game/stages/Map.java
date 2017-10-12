@@ -140,11 +140,6 @@ public class Map {
 		{
 			changeTile(x / 16,y / 16, ribbon);
 		}
-			
-		if(Gdx.input.isKeyJustPressed(Input.Keys.F1))
-		{
-			saveMap();
-		}
 		
 	}
 	
@@ -225,7 +220,7 @@ public class Map {
 		
 		FileHandle file = Gdx.files.absolute("C:/temp/" + path);	
 		file.writeString(mapFile, false);		
-		JOptionPane.showMessageDialog(null, "END");
+		JOptionPane.showMessageDialog(null, "MAP SAVED");
 	}
 	
 }

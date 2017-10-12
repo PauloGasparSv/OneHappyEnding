@@ -1,6 +1,5 @@
 package com.pgsv.game.stages;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 
 import javax.swing.JOptionPane;
@@ -17,26 +16,30 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.pgsv.game.actors.Bullseye;
-import com.pgsv.game.actors.Coin;
+import com.pgsv.game.actors.CoinManager;
 import com.pgsv.game.actors.Player;
 import com.pgsv.game.consts.C;
 import com.pgsv.game.utils.Text;
 
 public class TestStage implements Screen
 {
+	private final int GAME = 0, TILEMAP = 1, ITENS = 3;
+	
+	private int currentState;
+	
 	private Map map;
 	
+	private CoinManager coins;
 	private Player player;
 	private Text text;
+	
 	
 	private OrthographicCamera camera;
 	private SpriteBatch batch;
 	
-	private ArrayList<Coin> coins;
 	private LinkedList<Bullseye> bulls;
 	
 	private Music theme;
-	
 	private Sound coinSound;
 	
 	private Texture [] water;
@@ -46,7 +49,8 @@ public class TestStage implements Screen
 	private Texture tiles;
 	private Texture bull;
 	
-	private Animation<TextureRegion> waterAnimation;
+	private Animation <TextureRegion> waterAnimation;
+	private Animation <TextureRegion> coinAnimation;
 	
 	private TextureRegion cloud;
 	
@@ -77,6 +81,8 @@ public class TestStage implements Screen
 		{
 			coinRegion[i] = new TextureRegion(coin, i * 16, 0, 16, 16);
 		}
+		this.coinAnimation = new Animation<TextureRegion>(0.22f,coinRegion);
+		
 		
 		TextureRegion [] tilesRegion = new TextureRegion[3 * 11];
 		int current = 0;
@@ -125,15 +131,17 @@ public class TestStage implements Screen
 		this.bull = new Texture(Gdx.files.internal(C.path + "Actors/baddies/bullseye.png"));
 		
 		this.bulls = new LinkedList<Bullseye>();
-		this.coins = new ArrayList<Coin>();
 		
 		this.bulls.add(new Bullseye(230, 72, false, true, bull, map, player, camera));
 		this.bulls.add(new Bullseye(426, 102, true, false, bull, map, player, camera));
 		this.bulls.add(new Bullseye(640, 32, true, false, bull, map, player, camera));
 		this.bulls.add(new Bullseye(1200, 54, false, true, bull, map, player, camera));
 		
-		for(int i = 16; i < 22; i ++)
-			this.coins.add(new Coin(coinRegion, player, coinSound, 16 * i, 88));
+		
+		this.coins = new CoinManager(player, coinAnimation, coinSound, camera);
+		this.coins.loadCoins("testMapCoins.broc");
+		
+		
 		
 		this.intro = 0;
 		C.debug = false;
@@ -144,40 +152,70 @@ public class TestStage implements Screen
 		
 		this.intro += delta * 55 + delta * this.intro / 3f;
 		
-		if(Gdx.input.isKeyJustPressed(Input.Keys.F2)) C.debug = !C.debug;
-		if(Gdx.input.isKeyJustPressed(Input.Keys.F4)) this.player.die();
+		if(Gdx.input.isKeyJustPressed(Input.Keys.F2))
+		{
+			C.debug = true;
+			if(this.currentState == TILEMAP)
+			{
+				C.debug = false;
+				this.currentState = GAME;
+			}
+			else this.currentState = TILEMAP;
+		}
+		else if(Gdx.input.isKeyJustPressed(Input.Keys.F3))
+		{
+			C.debug = true;	
+			if(this.currentState == ITENS)
+			{
+				C.debug = false;
+				this.currentState = GAME;
+			}
+			else this.currentState = ITENS;
+		}
+		else if(Gdx.input.isKeyJustPressed(Input.Keys.F4))
+		{
+			this.player.die();
+		}
 		
 		
-		if(C.debug) this.map.editMode(camera);
+		if(C.debug)
+		{
+			if(Gdx.input.isKeyJustPressed(Input.Keys.F1))
+			{
+				this.map.saveMap();
+				this.coins.saveCoins("testMapCoins.broc");
+			}
+			if(this.currentState == TILEMAP)
+			{
+				this.map.editMode(camera);
+			}
+			else if(this.currentState == ITENS)
+			{
+				this.coins.debugMode(delta);
+			}
+		}
 		else
 		{
 			this.player.update(Gdx.graphics.getDeltaTime());
 			
 			for(Bullseye b : bulls)
+			{
 				b.update(delta);
+			}
 			
-			for(Coin c : coins)
-				c.update(delta);
+			this.coins.update(delta);
 		}
 				
 		if(!C.debug && !this.player.isDead())
 		{
 			if(this.player.position.x > this.camera.position.x + 4f)
-			{
 				this.camera.position.x = this.player.position.x - 4f;	
-			}
 			else if(this.player.position.x < this.camera.position.x - 24f)
-			{
 				this.camera.position.x = this.player.position.x + 24f;
-			}
 			if(this.player.position.y > this.camera.position.y + 14)
-			{
 				this.camera.position.y = this.player.position.y - 14;
-			}
 			else if(this.player.position.y < this.camera.position.y - 36)
-			{
 				this.camera.position.y = this.player.position.y + 36;
-			}
 		}
 		else
 		{
@@ -246,18 +284,26 @@ public class TestStage implements Screen
 		}
 		
 		this.map.draw(camera, batch);
+		
 		if(C.debug)
 		{
-			this.map.drawEditMode(batch);
 			
-			this.text.draw(batch,  "tile editor", camera.position.x - 128, camera.position.y + 62);
-			
+			if(this.currentState == TILEMAP)
+			{
+				this.map.drawEditMode(batch);
+				this.text.draw(batch,  "tile editor", camera.position.x - 128, camera.position.y + 62);	
+			}
+			else if(this.currentState == ITENS)
+			{
+				this.coins.debugModeDraw(batch);
+				this.text.draw(batch,  "Coins editor", camera.position.x - 128, camera.position.y + 62);
+				this.text.draw(batch, this.coins.numCoins() + " coins", camera.position.x - 128, camera.position.y + 50);
+			}
 		}
 		
 		for(Bullseye b : bulls)
 			b.draw(batch);
-		for(Coin c : coins)
-			c.draw(batch);
+		this.coins.draw(batch);
 		
 		this.player.draw(this.batch);
 		
