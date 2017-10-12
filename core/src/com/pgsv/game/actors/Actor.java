@@ -1,5 +1,6 @@
 package com.pgsv.game.actors;
 
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -8,6 +9,7 @@ import com.pgsv.game.stages.Map;
 public class Actor 
 {
 	protected Map map;
+	protected OrthographicCamera camera;
 	
 	public Vector2 position;
 	
@@ -19,9 +21,10 @@ public class Actor
 	protected boolean right;
 	protected boolean grounded;
 	
-	public Actor(float x, float y,Map map)
+	public Actor(float x, float y,Map map, OrthographicCamera camera)
 	{
 		this.map = map;
+		this.camera = camera;
 		this.position = new Vector2();
 		this.position.x = x;
 		this.position.y = y;

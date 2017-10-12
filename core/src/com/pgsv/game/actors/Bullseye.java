@@ -1,5 +1,6 @@
 package com.pgsv.game.actors;
 
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -29,9 +30,9 @@ public class Bullseye extends Actor{
 
 
 	@SuppressWarnings("unchecked")
-	public Bullseye(float x, float y, boolean right, boolean smart, Texture spriteSheet, Map map, Player player)
+	public Bullseye(float x, float y, boolean right, boolean smart, Texture spriteSheet, Map map, Player player, OrthographicCamera camera)
 	{
-		super(x,y,map);
+		super(x,y,map, camera);
 		
 		this.player = player;
 		this.smart = smart;
@@ -77,8 +78,8 @@ public class Bullseye extends Actor{
 	
 	public void update(float delta)
 	{	
-		float distX = this.position.x - this.player.position.x; 
-		ignoreMe = distX > 280 || distX < -280;
+		float distX = this.position.x - this.camera.position.x; 
+		ignoreMe = distX > 300 || distX < -300;
 		if(ignoreMe || isDead()) return;
 			
 		this.animationDelta += delta;
@@ -161,7 +162,7 @@ public class Bullseye extends Actor{
 	
 	public void draw(SpriteBatch batch)
 	{
-		if(!C.debug && (ignoreMe || isDead())) return;
+		if(ignoreMe || isDead()) return;
 		float offX = 0;
 		
 		this.currentFrame = this.animations[this.currentState].getKeyFrame(this.animationDelta, true);

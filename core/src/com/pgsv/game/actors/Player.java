@@ -5,6 +5,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.controllers.Controller;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -53,9 +54,9 @@ public class Player extends Actor{
 	
 	
 	@SuppressWarnings("unchecked")
-	public Player(float x, float y, Map map)
+	public Player(float x, float y, Map map, OrthographicCamera camera)
 	{
-		super(x,y,map);
+		super(x,y,map, camera);
 		
 		this.spriteSheet = new Texture(Gdx.files.internal(C.path + "Actors/hero/guy_sheet.png"));
 		

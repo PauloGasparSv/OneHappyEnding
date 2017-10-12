@@ -119,7 +119,7 @@ public class TestStage implements Screen
 		int [] solids = {10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 21};
 		this.map.setSolids(solids);
 		
-		this.player = new Player(24f, 112f, map);
+		this.player = new Player(24f, 112f, map, camera);
 		this.player.fall();
 		
 		this.bull = new Texture(Gdx.files.internal(C.path + "Actors/baddies/bullseye.png"));
@@ -127,10 +127,10 @@ public class TestStage implements Screen
 		this.bulls = new LinkedList<Bullseye>();
 		this.coins = new ArrayList<Coin>();
 		
-		this.bulls.add(new Bullseye(230, 72, false, true, bull, map, player));
-		this.bulls.add(new Bullseye(426, 102, true, false, bull, map, player));
-		this.bulls.add(new Bullseye(640, 32, true, false, bull, map, player));
-		this.bulls.add(new Bullseye(1200, 54, false, true, bull, map, player));
+		this.bulls.add(new Bullseye(230, 72, false, true, bull, map, player, camera));
+		this.bulls.add(new Bullseye(426, 102, true, false, bull, map, player, camera));
+		this.bulls.add(new Bullseye(640, 32, true, false, bull, map, player, camera));
+		this.bulls.add(new Bullseye(1200, 54, false, true, bull, map, player, camera));
 		
 		for(int i = 16; i < 22; i ++)
 			this.coins.add(new Coin(coinRegion, player, coinSound, 16 * i, 88));
