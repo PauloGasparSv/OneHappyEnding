@@ -7,35 +7,32 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.pgsv.game.consts.C;
 import com.pgsv.game.stages.Map;
 
-public class Bullseye {
+public class Bullseye extends Actor{
 
 	private final int WALK = 0,DEAD = 3;
 
 	private Player player;
-	private Map map;
-	public Vector2 position;
+	
+	private Rectangle rect;
 	private Vector2 speed;
+	
 	private TextureRegion currentFrame;
+	
 	private Animation<TextureRegion> walkAnimation;
 	private Animation<TextureRegion> [] animations;
-	private Rectangle rect;
 	
-	private boolean right;
-	private boolean grounded;
 	private boolean smart;
 	private boolean ignoreMe;
 
-	private int currentState;
-	
-	private float animationDelta;
-	private float gravity;
-	
+
 	@SuppressWarnings("unchecked")
 	public Bullseye(float x, float y, boolean right, boolean smart, Texture spriteSheet, Map map, Player player)
 	{
-		this.map = map;
+		super(x,y,map);
+		
 		this.player = player;
 		this.smart = smart;
 		this.right = right;
@@ -164,7 +161,7 @@ public class Bullseye {
 	
 	public void draw(SpriteBatch batch)
 	{
-		if(ignoreMe || isDead()) return;
+		if(!C.debug && (ignoreMe || isDead())) return;
 		float offX = 0;
 		
 		this.currentFrame = this.animations[this.currentState].getKeyFrame(this.animationDelta, true);
@@ -176,12 +173,6 @@ public class Bullseye {
 		}
 		
 		batch.draw(this.currentFrame,this.position.x + offX,this.position.y);
-	}
-	
-	private void changeState(int state)
-	{
-		this.animationDelta = 0f;
-		this.currentState = state;
 	}
 	
 	public void ground(float y)

@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
+import com.pgsv.game.consts.C;
 
 public class Coin 
 {
@@ -52,7 +53,7 @@ public class Coin
 	
 	public void draw(SpriteBatch batch)
 	{
-		if(this.ignoreMe || isDead()) return;
+		if(!C.debug && (this.ignoreMe || isDead())) return;
 		batch.draw(this.animation.getKeyFrame(animationDelta,true), this.rect.x - 4, this.rect.y,10,10);
 	}
 	

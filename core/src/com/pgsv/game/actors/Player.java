@@ -5,7 +5,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.controllers.Controller;
-import com.badlogic.gdx.controllers.mappings.Xbox;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -17,15 +16,12 @@ import com.pgsv.game.consts.C;
 import com.pgsv.game.consts.IpegaPc;
 import com.pgsv.game.stages.Map;
 
-public class Player {
+public class Player extends Actor{
 	
 	private final int IDLE = 0, WALK = 1, JUMP = 5, DEAD = 6;
-
-	private Map map;
 	
 	private Controller in;
 	
-	public Vector2 position;
 	private Vector2 speed;
 	private Rectangle hitBox;
 	
@@ -43,20 +39,15 @@ public class Player {
 	private Animation<TextureRegion> walkBlockedAnimation;
 	private Animation<TextureRegion> [] animations;
 	
-	private boolean right;
-	private boolean grounded;
 	private boolean isParachute;
 	private boolean respawn;
 	private boolean blocked;
 	private boolean pressingJump; //CONTROLLER ONLY
 	
 	private int jumpCount;
-	private int currentState;
 	private int coins;
 	
-	private float animationDelta;
 	private float angle;
-	private float gravity;
 	
 	private float blockedTime;
 	
@@ -64,7 +55,7 @@ public class Player {
 	@SuppressWarnings("unchecked")
 	public Player(float x, float y, Map map)
 	{
-		this.map = map;
+		super(x,y,map);
 		
 		this.spriteSheet = new Texture(Gdx.files.internal(C.path + "Actors/hero/guy_sheet.png"));
 		
@@ -413,12 +404,6 @@ public class Player {
 			changeState(DEAD);
 			this.gravity = 200f;
 		}
-	}
-	
-	private void changeState(int state)
-	{
-		this.animationDelta = 0f;
-		this.currentState = state;
 	}
 	
 	public int getCoins()

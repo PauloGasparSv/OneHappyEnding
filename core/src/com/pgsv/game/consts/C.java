@@ -8,4 +8,6 @@ public final class C {
 	
 	public static Controller in;
 	
+	public static boolean debug = false;
+	
 }

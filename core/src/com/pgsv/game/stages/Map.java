@@ -5,9 +5,11 @@ import javax.swing.JOptionPane;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.pgsv.game.consts.C;
 
@@ -20,6 +22,7 @@ public class Map {
 	private int ribbon;
 	private String path;
 	private int [] solids;
+	private Vector2 preview;
 	
 	public Map(int w, int h, String path,TextureRegion [] tiles)
 	{
@@ -29,6 +32,7 @@ public class Map {
 		this.tiles = tiles;
 		this.isTouched = false;
 		this.path = path + ".broc";
+		this.preview = new Vector2();
 		this.lastTouched = System.currentTimeMillis();
 	}
 	
@@ -40,7 +44,7 @@ public class Map {
 		this.isTouched = false;
 		this.lastTouched = System.currentTimeMillis();
 		this.path = path  + ".broc";
-		
+		this.preview = new Vector2();
 		FileHandle mapFile = Gdx.files.internal(C.path + "maps/" + this.path );
 		String mapText = mapFile.readString();
 		
@@ -108,6 +112,8 @@ public class Map {
 		int x = (int) ( Gdx.input.getX() * 0.2f  + camera.position.x - camera.viewportWidth / 2f);
 		int y = (int) (144 - Gdx.input.getY()  * 0.2f + camera.position.y - camera.viewportHeight / 2f);
 		
+		this.preview.x = x / 16;
+		this.preview.y = y / 16;
 		
 		if(Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) && Gdx.input.isKeyPressed(Input.Keys.C))
 		{
@@ -140,6 +146,16 @@ public class Map {
 			saveMap();
 		}
 		
+	}
+	
+	public void drawEditMode(SpriteBatch batch)
+	{
+		if(this.ribbon > 0)
+		{
+			batch.setColor(new Color(0.2f,0.2f,1f,0.7f));
+			batch.draw(this.tiles[this.ribbon - 1], preview.x * 16, preview.y * 16);
+			batch.setColor(new Color(1,1,1,1));
+		}
 	}
 	
 	public int getTile(float x, float y)

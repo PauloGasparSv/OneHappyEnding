@@ -20,13 +20,14 @@ import com.pgsv.game.actors.Bullseye;
 import com.pgsv.game.actors.Coin;
 import com.pgsv.game.actors.Player;
 import com.pgsv.game.consts.C;
-import com.pgsv.game.utils.TextInput;
+import com.pgsv.game.utils.Text;
 
 public class TestStage implements Screen
 {
 	private Map map;
 	
 	private Player player;
+	private Text text;
 	
 	private OrthographicCamera camera;
 	private SpriteBatch batch;
@@ -49,7 +50,6 @@ public class TestStage implements Screen
 	
 	private TextureRegion cloud;
 	
-	private boolean debug;
 	private float intro;
 	
 	private float off;
@@ -64,6 +64,8 @@ public class TestStage implements Screen
 		
 		this.camera = new OrthographicCamera();
 		this.camera.setToOrtho(false,256, 144);
+		
+		this.text = new Text();
 		
 		this.tiles = new Texture(Gdx.files.internal(C.path + "stages/1/tiles.png"));
 		this.background = new Texture(Gdx.files.internal(C.path + "stages/1/back.png"));
@@ -134,7 +136,7 @@ public class TestStage implements Screen
 			this.coins.add(new Coin(coinRegion, player, coinSound, 16 * i, 88));
 		
 		this.intro = 0;
-		this.debug = false;
+		C.debug = false;
 	}
 	
 	public void update(float delta)
@@ -142,11 +144,11 @@ public class TestStage implements Screen
 		
 		this.intro += delta * 55 + delta * this.intro / 3f;
 		
-		if(Gdx.input.isKeyJustPressed(Input.Keys.F2)) this.debug = !this.debug;
+		if(Gdx.input.isKeyJustPressed(Input.Keys.F2)) C.debug = !C.debug;
 		if(Gdx.input.isKeyJustPressed(Input.Keys.F4)) this.player.die();
 		
 		
-		if(debug) this.map.editMode(camera);
+		if(C.debug) this.map.editMode(camera);
 		else
 		{
 			this.player.update(Gdx.graphics.getDeltaTime());
@@ -158,7 +160,7 @@ public class TestStage implements Screen
 				c.update(delta);
 		}
 				
-		if(!this.debug && !this.player.isDead())
+		if(!C.debug && !this.player.isDead())
 		{
 			if(this.player.position.x > this.camera.position.x + 4f)
 			{
@@ -244,6 +246,13 @@ public class TestStage implements Screen
 		}
 		
 		this.map.draw(camera, batch);
+		if(C.debug)
+		{
+			this.map.drawEditMode(batch);
+			
+			this.text.draw(batch,  "tile editor", camera.position.x - 128, camera.position.y + 62);
+			
+		}
 		
 		for(Bullseye b : bulls)
 			b.draw(batch);
@@ -265,8 +274,7 @@ public class TestStage implements Screen
 			else
 			{
 				batch.draw(this.titleCard, camera.position.x + 160 + 320 - this.intro, camera.position.y + 24);
-			}
-			
+			}	
 		}
 	}
 	
@@ -288,6 +296,7 @@ public class TestStage implements Screen
 	public void dispose() 
 	{
 		JOptionPane.showMessageDialog(null, "DISPOSE ME");
+		this.text.dispose();
 		this.player.dispose();
 		this.background.dispose();
 		this.tiles.dispose();
