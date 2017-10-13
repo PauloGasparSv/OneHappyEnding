@@ -20,6 +20,7 @@ public class Actor
 	
 	protected boolean right;
 	protected boolean grounded;
+	protected boolean special;
 	
 	public Actor(float x, float y,Map map, OrthographicCamera camera)
 	{
@@ -60,5 +61,10 @@ public class Actor
 	
 	public void ground(){}
 	public void fall(){}
+	
+	public int getId()
+	{
+		return 0;
+	}
 	
 }

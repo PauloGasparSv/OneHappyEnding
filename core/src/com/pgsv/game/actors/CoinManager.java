@@ -32,11 +32,11 @@ public class CoinManager {
 	
 	private boolean mousePressed;
 	
-	public CoinManager(Player player, Animation<TextureRegion> coinAnimation, Sound coinSound,OrthographicCamera camera)
+	public CoinManager(Player player, TextureRegion [] coinRegion, Sound coinSound,OrthographicCamera camera)
 	{
 		this.coins = new LinkedList<Coin>();
 		this.player = player;
-		this.coinAnimation = coinAnimation;
+		this.coinAnimation = new Animation<TextureRegion>(0.22f,coinRegion);
 		this.coinSound = coinSound;
 		this.camera = camera;
 		this.preview = new Vector2();
@@ -73,6 +73,7 @@ public class CoinManager {
 		{
 			if(!this.mousePressed)
 			{
+				this.mousePressed = true;
 				float tx = preview.x * 16;
 				float ty = preview.y * 16;
 				LinkedList<Coin> tempDel = new LinkedList<Coin>();
@@ -128,7 +129,7 @@ public class CoinManager {
 		for(Coin c : coins)
 		{
 			Rectangle r = c.getRect();
-			coinsFile += r.x + " " + r.y + "\n";
+			coinsFile += (int)(r.x) + " " + (int)(r.y) + "\n";
 		}
 		
 		FileHandle file = Gdx.files.absolute("C:/temp/" + path);	
@@ -146,7 +147,7 @@ public class CoinManager {
 		for(String line : lines)
 		{
 			String [] temp = line.split(" ");
-			this.addCoin(Float.parseFloat(temp[0]), Float.parseFloat(temp[1]));
+			this.addCoin(Integer.parseInt(temp[0]), Integer.parseInt(temp[1]));
 		}
 	}
 	

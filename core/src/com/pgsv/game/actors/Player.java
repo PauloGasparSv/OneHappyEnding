@@ -47,6 +47,7 @@ public class Player extends Actor{
 	
 	private int jumpCount;
 	private int coins;
+	private int hp;
 	
 	private float angle;
 	
@@ -118,6 +119,7 @@ public class Player extends Actor{
 		this.respawn = false;
 		this.blocked = false;
 		this.pressingJump = false;
+		this.hp = 6;
 		
 		this.jumpCount = 0;
 		this.blockedTime = 0;
@@ -357,6 +359,26 @@ public class Player extends Actor{
 		batch.draw(this.currentFrame,this.position.x + offX,this.position.y,0,0,16,16,1,1,angle);
 	}
 	
+	public int getHp()
+	{
+		return hp;
+	}
+	
+	public int getHeartRegion()
+	{
+		if(this.hp % 2 == 0)
+		{
+			if(this.hp == 0) return 2;
+			return 0;
+		}	
+		return 1;
+	}
+	
+	public void changeHp(int value)
+	{
+		this.hp += value;
+	}
+	
 	public Rectangle getRect()
 	{
 		this.hitBox.x = this.position.x;
@@ -453,7 +475,10 @@ public class Player extends Actor{
 		changeState(JUMP);
 	}
 	
-	
+	public int getId()
+	{
+		return 1;
+	}
 	
 	public void dispose()
 	{

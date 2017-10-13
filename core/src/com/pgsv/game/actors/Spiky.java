@@ -11,7 +11,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.pgsv.game.consts.C;
 import com.pgsv.game.stages.Map;
 
-public class Bullseye extends Actor{
+public class Spiky extends Actor{
 
 	private final int WALK = 0,DEAD = 3;
 
@@ -25,17 +25,16 @@ public class Bullseye extends Actor{
 	private Animation<TextureRegion> walkAnimation;
 	private Animation<TextureRegion> [] animations;
 	
-	private boolean smart;
 	private boolean ignoreMe;
 
 
 	@SuppressWarnings("unchecked")
-	public Bullseye(float x, float y, boolean right, boolean smart, Texture spriteSheet, Map map, Player player, OrthographicCamera camera)
+	public Spiky(float x, float y, boolean right, boolean special, Texture spriteSheet, Map map, Player player, OrthographicCamera camera)
 	{
 		super(x,y,map, camera);
 		
 		this.player = player;
-		this.smart = smart;
+		this.special = special;
 		this.right = right;
 		
 		
@@ -64,7 +63,7 @@ public class Bullseye extends Actor{
 	public void init(float x, float y)
 	{
 		this.grounded = true;
-		this.ignoreMe = true;
+		this.ignoreMe = false;
 		
 		this.animationDelta = 0f;
 		this.gravity = 0f;
@@ -78,9 +77,9 @@ public class Bullseye extends Actor{
 	
 	public void update(float delta)
 	{	
-		float distX = this.position.x - this.camera.position.x; 
-		ignoreMe = distX > 300 || distX < -300;
-		if(ignoreMe || isDead()) return;
+		float distX = this.position.x - this.camera.position.x;
+		ignoreMe = distX > 180 || distX < -180;
+		if(ignoreMe || isDead() || C.debug) return;
 			
 		this.animationDelta += delta;
 		
@@ -131,7 +130,7 @@ public class Bullseye extends Actor{
 		{
 			if(!this.map.isSolid(tileBottomLeft)  && !this.map.isSolid(tileBottomRight))
 			{
-				if(!this.smart) fall();
+				if(!this.special) fall();
 				else this.right = !this.right;
 			}
 		}
@@ -173,7 +172,11 @@ public class Bullseye extends Actor{
 			this.currentFrame.flip(true, false);
 		}
 		
+		if(this.special) batch.setColor(1f, 0.8f, 0.8f, 1f);
+		
 		batch.draw(this.currentFrame,this.position.x + offX,this.position.y);
+		
+		batch.setColor(1f, 1f, 1f, 1f);
 	}
 	
 	public void ground(float y)
@@ -195,6 +198,11 @@ public class Bullseye extends Actor{
 	public boolean isDead()
 	{
 		return currentState == DEAD;
+	}
+	
+	public int getId()
+	{
+		return 2;
 	}
 	
 	public void fall()

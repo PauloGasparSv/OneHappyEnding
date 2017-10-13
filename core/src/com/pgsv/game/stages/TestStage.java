@@ -1,7 +1,5 @@
 package com.pgsv.game.stages;
 
-import java.util.LinkedList;
-
 import javax.swing.JOptionPane;
 
 import com.badlogic.gdx.Gdx;
@@ -15,7 +13,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.pgsv.game.actors.Bullseye;
+import com.pgsv.game.actors.BaddieBuilder;
 import com.pgsv.game.actors.CoinManager;
 import com.pgsv.game.actors.Player;
 import com.pgsv.game.consts.C;
@@ -23,34 +21,33 @@ import com.pgsv.game.utils.Text;
 
 public class TestStage implements Screen
 {
-	private final int GAME = 0, TILEMAP = 1, ITENS = 3;
+	private final int GAME = 0, TILEMAP = 1, ITENS = 3, BADDIES = 4;
 	
 	private int currentState;
 	
 	private Map map;
 	
 	private CoinManager coins;
+	private BaddieBuilder baddies;
 	private Player player;
 	private Text text;
 	
-	
 	private OrthographicCamera camera;
 	private SpriteBatch batch;
-	
-	private LinkedList<Bullseye> bulls;
 	
 	private Music theme;
 	private Sound coinSound;
 	
 	private Texture [] water;
+	private Texture hearts;
 	private Texture titleCard;
 	private Texture coin;
 	private Texture background;
 	private Texture tiles;
-	private Texture bull;
+	
+	private TextureRegion [] heartsRegion;
 	
 	private Animation <TextureRegion> waterAnimation;
-	private Animation <TextureRegion> coinAnimation;
 	
 	private TextureRegion cloud;
 	
@@ -75,13 +72,17 @@ public class TestStage implements Screen
 		this.background = new Texture(Gdx.files.internal(C.path + "stages/1/back.png"));
 		this.titleCard = new Texture(Gdx.files.internal(C.path + "stages/1/titleCard.png"));
 		this.coin = new Texture(Gdx.files.internal(C.path + "stages/coin.png"));
+		this.hearts = new Texture(Gdx.files.internal(C.path + "ui/heart.png"));
+		
+		this.heartsRegion = new TextureRegion[3];
+		for(int i = 0; i < 3; i++) this.heartsRegion[i] = new TextureRegion(hearts, i * 19, 0, 19, 16);
 		
 		TextureRegion [] coinRegion = new TextureRegion[4];
 		for(int i = 0; i < 4; i++)
 		{
 			coinRegion[i] = new TextureRegion(coin, i * 16, 0, 16, 16);
 		}
-		this.coinAnimation = new Animation<TextureRegion>(0.22f,coinRegion);
+		
 		
 		
 		TextureRegion [] tilesRegion = new TextureRegion[3 * 11];
@@ -122,26 +123,17 @@ public class TestStage implements Screen
 		this.waterDelta = 0f;
 		
 		this.map = new Map("testMap", tilesRegion);
-		int [] solids = {10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 21};
+		int [] solids = {10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21};
 		this.map.setSolids(solids);
 		
 		this.player = new Player(24f, 112f, map, camera);
 		this.player.fall();
 		
-		this.bull = new Texture(Gdx.files.internal(C.path + "Actors/baddies/bullseye.png"));
-		
-		this.bulls = new LinkedList<Bullseye>();
-		
-		this.bulls.add(new Bullseye(230, 72, false, true, bull, map, player, camera));
-		this.bulls.add(new Bullseye(426, 102, true, false, bull, map, player, camera));
-		this.bulls.add(new Bullseye(640, 32, true, false, bull, map, player, camera));
-		this.bulls.add(new Bullseye(1200, 54, false, true, bull, map, player, camera));
-		
-		
-		this.coins = new CoinManager(player, coinAnimation, coinSound, camera);
+		this.coins = new CoinManager(player, coinRegion, coinSound, camera);
 		this.coins.loadCoins("testMapCoins.broc");
 		
-		
+		this.baddies = new BaddieBuilder(player, camera, map, text);
+		this.baddies.loadBaddies("testMapBaddies.broc");
 		
 		this.intro = 0;
 		C.debug = false;
@@ -174,9 +166,21 @@ public class TestStage implements Screen
 		}
 		else if(Gdx.input.isKeyJustPressed(Input.Keys.F4))
 		{
+			C.debug = true;	
+			if(this.currentState == BADDIES)
+			{
+				C.debug = false;
+				this.currentState = GAME;
+			}
+			else this.currentState = BADDIES;
+		}
+		else if(Gdx.input.isKeyJustPressed(Input.Keys.F5))
+		{
 			this.player.die();
 		}
 		
+		if(Gdx.input.isKeyJustPressed(Input.Keys.UP)) this.player.changeHp(1);
+		else if(Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) this.player.changeHp(-1);
 		
 		if(C.debug)
 		{
@@ -184,6 +188,7 @@ public class TestStage implements Screen
 			{
 				this.map.saveMap();
 				this.coins.saveCoins("testMapCoins.broc");
+				this.baddies.saveBaddies("testMapBaddies.broc");
 			}
 			if(this.currentState == TILEMAP)
 			{
@@ -193,19 +198,22 @@ public class TestStage implements Screen
 			{
 				this.coins.debugMode(delta);
 			}
+			else if(this.currentState == BADDIES)
+			{
+				this.baddies.debugMode(delta);
+			}
 		}
 		else
 		{
 			this.player.update(Gdx.graphics.getDeltaTime());
 			
-			for(Bullseye b : bulls)
-			{
-				b.update(delta);
-			}
-			
-			this.coins.update(delta);
 		}
 				
+
+		this.baddies.update(delta);
+		
+		this.coins.update(delta);
+		
 		if(!C.debug && !this.player.isDead())
 		{
 			if(this.player.position.x > this.camera.position.x + 4f)
@@ -233,6 +241,8 @@ public class TestStage implements Screen
 			this.camera.position.x = camera.viewportWidth / 2f;
 		if(camera.position.y < camera.viewportHeight / 2f)
 			camera.position.y = camera.viewportHeight / 2f;
+		if(camera.position.x > 2100)
+			camera.position.x = 2100;
 				
 		float camX = this.camera.position.x - this.camera.viewportWidth /2f;
 		float camY = this.camera.position.y - this.camera.viewportHeight /2f;
@@ -268,6 +278,7 @@ public class TestStage implements Screen
 		Gdx.gl.glClearColor(0.18f, 0.29f, 0.26f, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		
+		
 		batch.draw(this.background, off ,offy);
 		batch.draw(this.waterAnimation.getKeyFrame(waterDelta, true), off, offy + 17);
 		batch.draw(this.background,this.background.getWidth() + off, offy);
@@ -285,8 +296,15 @@ public class TestStage implements Screen
 		
 		this.map.draw(camera, batch);
 		
+
+		this.baddies.draw(batch);
+		this.coins.draw(batch);
+		
+		this.player.draw(this.batch);
+		
 		if(C.debug)
 		{
+			this.text.draw(batch,(int)camera.position.x +" ; " + (int)camera.position.y, camera.position.x + 42, camera.position.y + 62);
 			
 			if(this.currentState == TILEMAP)
 			{
@@ -299,14 +317,24 @@ public class TestStage implements Screen
 				this.text.draw(batch,  "Coins editor", camera.position.x - 128, camera.position.y + 62);
 				this.text.draw(batch, this.coins.numCoins() + " coins", camera.position.x - 128, camera.position.y + 50);
 			}
+			else if(this.currentState == BADDIES)
+			{
+				this.baddies.debugModeDraw(batch);
+				this.text.draw(batch,  "Baddies editor", camera.position.x - 128, camera.position.y + 62);
+			}
 		}
-		
-		for(Bullseye b : bulls)
-			b.draw(batch);
-		this.coins.draw(batch);
-		
-		this.player.draw(this.batch);
-		
+		else
+		{
+			int hp = player.getHp();
+			
+			if(hp % 2 == 1)
+				batch.draw(heartsRegion[1], camera.position.x - 126 + (hp - 1) / 2 * 12, camera.position.y + 60.5f, 10, 8.5f);
+			for(int i = 0; i < hp / 2; i ++)
+				batch.draw(heartsRegion[0], camera.position.x - 126 + i * 12, camera.position.y + 60.5f, 10, 8.5f);	
+			for(int i = 0; i < 3; i ++)
+				batch.draw(heartsRegion[2], camera.position.x - 126 + i * 12, camera.position.y + 60.5f, 10, 8.5f);
+		}
+				
 		if(this.intro < 2000)
 		{
 			if(this.intro < 280)
@@ -348,7 +376,7 @@ public class TestStage implements Screen
 		this.tiles.dispose();
 		this.water[0].dispose();
 		this.water[1].dispose();
-		this.bull.dispose();
+		this.baddies.dispose();
 		this.coin.dispose();
 		this.titleCard.dispose();
 		this.coinSound.dispose();
