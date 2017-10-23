@@ -128,8 +128,8 @@ public class TestStage implements Screen
 		int [] solids = {10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21};
 		this.map.setSolids(solids);
 		
-		//this.player = new Player(24f, 122f, map, camera);
-		this.player = new Player(2024f, 122f, map, camera);
+		this.player = new Player(24f, 122f, map, camera);
+		//this.player = new Player(2024f, 122f, map, camera);
 		this.player.fall();
 		
 		this.coins = new CoinManager(player, coinRegion, coinSound, camera);
