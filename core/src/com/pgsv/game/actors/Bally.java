@@ -1,6 +1,7 @@
 package com.pgsv.game.actors;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -10,84 +11,66 @@ import com.badlogic.gdx.math.Vector3;
 import com.pgsv.game.consts.C;
 import com.pgsv.game.stages.Map;
 
-public class Spiky extends Actor{
-
-	private final int WALK = 0,DEAD = 2, SMOOCHED = 1;
-
-	private Player player;
+public class Bally extends Actor
+{
+	private final int IDLE = 0, WALK = 1, JUMP = 2, DEAD = 3;
 	
-	private Rectangle rect;
-	private Vector2 speed;
+	private Player player;
+
+	private Animation<TextureRegion> rollingAnimation;
 	
 	private TextureRegion currentFrame;
 	
-	private Animation<TextureRegion> walkAnimation;
-	private Animation<TextureRegion> deathAnimation;
-	private Animation<TextureRegion> [] animations;
+	private Rectangle rect;
+	
+	private Vector2 speed;
 	
 	private boolean ignoreMe;
-
-	private long lastDead;
-		
-
-	@SuppressWarnings("unchecked")
-	public Spiky(float x, float y, boolean right, boolean special, Animation<TextureRegion> walkAnimation, Animation<TextureRegion> deathAnimation, Map map, Player player, OrthographicCamera camera)
-	{
-		super(x,y,map, camera);
-		
-		this.player = player;
-		this.special = special;
-		this.right = right;
-		
-		this.walkAnimation = walkAnimation;
-		this.deathAnimation = deathAnimation;
-		
-		//SETTING ANIMATIONS
-		this.animations = new Animation[2];
-		this.animations[WALK] = this.walkAnimation;
-		this.animations[SMOOCHED] = this.deathAnimation;
 	
-		this.currentFrame = walkAnimation.getKeyFrame(0);
+	@SuppressWarnings("unchecked")
+	public Bally(float x, float y, boolean right,Map map, OrthographicCamera camera, Player player,Texture rollingTexture) 
+	{
+		super(x, y, map, camera);
 		
-		this.rect = new Rectangle();
-		this.rect.width = 4;
-		this.rect.height = 10;
+		TextureRegion [] rollingRegions = new TextureRegion[6];
+		for(int i = 0; i < 6; i ++ )
+		{
+			rollingRegions[i] = new TextureRegion(rollingTexture, 14 * i, 0 , 14, 14);
+		}
 		
+		this.rollingAnimation = new Animation<TextureRegion>(0.15f, rollingRegions);
+		this.player = player;
+		this.rect = new Rectangle(0,0, 9,10);
+		this.right = right;
 		this.init(x, y);
 	}
-	
-	public void init(float x, float y)
+
+	public void init(float x ,float y)
 	{
 		this.grounded = true;
 		this.ignoreMe = false;
 		
-		lastDead = 0;
-		
 		this.animationDelta = 0f;
 		this.gravity = 0f;
 		
-		this.position = new Vector2(x, y);
-		this.speed = new Vector2(20f, 60f);
+		
+		this.position = new Vector2(x,y);
+		this.speed = new Vector2(20,60);
 		
 		changeState(WALK);
+		
 		fall();
 	}
 	
 	public void update(float delta)
-	{	
+	{
 		float distX = this.position.x - this.camera.position.x;
 		ignoreMe = distX > 180 || distX < -180;
 		if(ignoreMe || isDead() || C.debug) return;
-
-		this.animationDelta += delta;
 		
-		if(this.currentState == SMOOCHED)
-		{
-			if(System.currentTimeMillis() - lastDead > 2000)
-				die();
-			return;
-		}
-			
+		animationDelta += delta;
+		
+
 		if(this.right)
 		{
 			this.position.x += this.speed.x * delta;
@@ -96,8 +79,6 @@ public class Spiky extends Actor{
 		{
 			this.position.x -= this.speed.x * delta;
 		}
-		
-	
 		
 		Vector3 tileBottomLeft = this.map.getTileVector(this.position.x + 5, this.position.y - 1);
 		Vector3  tileBottomRight = this.map.getTileVector(this.position.x + 10, this.position.y - 1);		
@@ -142,14 +123,12 @@ public class Spiky extends Actor{
 			}
 		}
 		
-		if(player.isDead() || this.currentState == SMOOCHED) return;
+		if(player.isDead()) return;
 		if(player.getRect().overlaps(this.getRect()))
 		{
 			if(player.position.y > this.position.y + 2)
 			{
-				changeState(SMOOCHED);
-				this.lastDead = System.currentTimeMillis();
-				C.time = 0.1f;
+				die();
 				player.jump(true);
 			}
 			else
@@ -162,33 +141,12 @@ public class Spiky extends Actor{
 	
 	public Rectangle getRect()
 	{
-		this.rect.x = this.position.x + 6;
+		this.rect.x = this.position.x + 3;
 		this.rect.y = this.position.y;
 
 		return this.rect;
 	}
 	
-	public void draw(SpriteBatch batch)
-	{
-		if(ignoreMe || isDead() ) return;
-		float offX = 0;
-		
-		if(currentState != SMOOCHED)
-			this.currentFrame = this.animations[this.currentState].getKeyFrame(this.animationDelta, true);
-		else
-			this.currentFrame = this.animations[SMOOCHED].getKeyFrame(this.animationDelta, false);
-		
-		if(this.currentFrame.isFlipX() != this.right)
-		{
-			this.currentFrame.flip(true, false);
-		}
-		
-		if(this.special) batch.setColor(1f, 0.3f, 1f, 1f);
-		
-		batch.draw(this.currentFrame,this.position.x + offX,this.position.y);
-		
-		batch.setColor(1f, 1f, 1f, 1f);
-	}
 	
 	public void ground(float y)
 	{
@@ -197,7 +155,31 @@ public class Spiky extends Actor{
 		this.gravity = 0f;
 		changeState(WALK);
 	}
+	
+	public void draw(SpriteBatch batch)
+	{
+		if(ignoreMe || isDead()) return;
+		float offX = 0;
+		
+		this.currentFrame = this.rollingAnimation.getKeyFrame(this.animationDelta, true);
+		
+		
+		if(this.currentFrame.isFlipX() != this.right)
+		{
+			this.currentFrame.flip(true, false);
+		}
+		
+		
+		batch.draw(this.currentFrame,this.position.x + offX,this.position.y);
 
+	}
+	
+	public void dispose()
+	{
+		
+	}
+	
+	
 	public void die()
 	{
 		if(this.currentState != DEAD)
@@ -211,17 +193,17 @@ public class Spiky extends Actor{
 		return currentState == DEAD;
 	}
 	
-	public int getId()
-	{
-		return 2;
-	}
-	
 	public void fall()
 	{
 		this.grounded = false;
 		changeState(WALK);
 	}
 	
+	
+	public int getId()
+	{
+		return 4;
+	}
 	
 	
 }

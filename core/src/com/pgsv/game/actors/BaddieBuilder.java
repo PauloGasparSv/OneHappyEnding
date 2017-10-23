@@ -10,6 +10,7 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
@@ -19,13 +20,18 @@ import com.pgsv.game.utils.Text;
 
 public class BaddieBuilder 
 {
-	private final int SPIKY = 0, SPIKY_SMART = 1;
+	private final int SPIKY = 0, SPIKY_SMART = 1, BALLY = 2;
 	
 	private int currentBaddie;
 	
 	private LinkedList<Actor> baddies;
 
 	private Texture spikyTexture;
+	private Texture spikyDeadTexture;
+	private Texture ballyTexture;	
+	
+	private Animation<TextureRegion> spikyWalkAnimation;
+	private Animation<TextureRegion> spikyDeathAnimation;
 	
 	private TextureRegion [] baddiePreview;
 	
@@ -53,18 +59,41 @@ public class BaddieBuilder
 		this.mousePressed = false;
 		this.map = map;
 		this.text = text;
-		this.spikyTexture = new Texture(Gdx.files.internal(C.path + "Actors/baddies/bullseye.png"));
-		this.preview = new Vector2();
 		this.currentBaddie = 0;
+		this.preview = new Vector2();
 		this.remove = new LinkedList<Actor>();
 		
-		this.baddiePreview = new TextureRegion[2];
+		this.setup();
+		
+		this.baddiePreview = new TextureRegion[3];
 		
 		this.baddiePreview[SPIKY] = new TextureRegion(spikyTexture,0,0,16,13);
 		this.baddiePreview[SPIKY_SMART] = new TextureRegion(spikyTexture,0,0,16,13);
+		this.baddiePreview[BALLY] = new TextureRegion(ballyTexture,0,0,14,14);
 		
 		this.right = false;
 	}
+	
+	private void setup()
+	{
+		this.spikyTexture = new Texture(Gdx.files.internal(C.path + "Actors/baddies/bullseye.png"));
+		this.ballyTexture = new Texture(Gdx.files.internal(C.path + "Actors/baddies/bally14.png"));
+		this.spikyDeadTexture = new Texture(Gdx.files.internal(C.path + "Actors/baddies/spikyDead.png"));
+		
+		TextureRegion [] currentSheet = new TextureRegion[6];
+		for(int i = 0; i < currentSheet.length; i ++)
+		{
+			currentSheet[i] = new TextureRegion(this.spikyTexture,16 * i,0,16,13);
+		}
+		this.spikyWalkAnimation = new Animation<TextureRegion>(0.15f ,currentSheet);
+		
+		currentSheet = new TextureRegion[2];
+		currentSheet[0] = new TextureRegion(this.spikyDeadTexture,0,0,16, 8);
+		currentSheet[1] = new TextureRegion(this.spikyDeadTexture,16,0, 16, 8);
+		this.spikyDeathAnimation = new Animation<TextureRegion>(0.04f,currentSheet);
+		
+	}
+	
 	
 	public void update(float delta)
 	{
@@ -107,7 +136,7 @@ public class BaddieBuilder
 			{
 				this.right = false;
 				this.currentBaddie ++;
-				if(this.currentBaddie > 1) this.currentBaddie = 0;
+				if(this.currentBaddie > 2) this.currentBaddie = 0;
 			}
 		}
 		
@@ -124,7 +153,6 @@ public class BaddieBuilder
 							preview.y > b.position.y - 6 && preview.y < b.position.y + 6)
 					{
 						ok = false;
-						System.out.println("FUCK");
 						return;
 					}
 				}
@@ -161,10 +189,13 @@ public class BaddieBuilder
 		switch(this.currentBaddie)
 		{
 			case SPIKY:
-				this.baddies.add(new Spiky(x, y, this.right, false, this.spikyTexture, map, player, camera));
+				this.baddies.add(new Spiky(x, y, this.right, false, this.spikyWalkAnimation,this.spikyDeathAnimation, map, player, camera));
 			break;
 			case SPIKY_SMART:
-				this.baddies.add(new Spiky(x, y, this.right, true, this.spikyTexture, map, player, camera));
+				this.baddies.add(new Spiky(x, y, this.right, true, this.spikyWalkAnimation,this.spikyDeathAnimation, map, player, camera));
+			break;
+			case BALLY:
+				this.baddies.add(new Bally(x, y, this.right , map, camera, player, this.ballyTexture));
 			break;
 		}
 	}
@@ -174,7 +205,10 @@ public class BaddieBuilder
 		switch(bad)
 		{
 			case 2:
-				this.baddies.add(new Spiky(x, y, right, special, this.spikyTexture, map, player, camera));
+				this.baddies.add(new Spiky(x, y, right, special, this.spikyWalkAnimation, this.spikyDeathAnimation, map, player, camera));
+			break;
+			case 4:
+				this.baddies.add(new Bally(x, y, right , map, camera, player, this.ballyTexture));
 			break;
 		}
 	}
@@ -196,6 +230,7 @@ public class BaddieBuilder
 		{
 			case SPIKY: return "Spiky";
 			case SPIKY_SMART: return "Smart Spiky";
+			case BALLY: return "Bally";
 		}
 		return "None";
 	}
@@ -213,7 +248,7 @@ public class BaddieBuilder
 		for(String line : lines)
 		{
 			String [] temp = line.split(" ");
-			addBaddie(Integer.parseInt(temp[0]),Integer.parseInt(temp[1]), Integer.parseInt(temp[2]),temp[3].equals("1"), temp[4].equals("1"));
+			this.addBaddie(Integer.parseInt(temp[0]),Integer.parseInt(temp[1]), Integer.parseInt(temp[2]),temp[3].equals("1"), temp[4].equals("1"));
 		}
 	}
 	
@@ -223,7 +258,7 @@ public class BaddieBuilder
 		
 		for(Actor a : baddies)
 		{
-			badsFile += a.getId() + " " + (int)(a.position.x) + " " + (int)(a.position.y)+ " " + (a.right ? "1" : "0") + " " + (a.special? "1" : "0");
+			badsFile += a.getId() + " " + (int)(a.position.x) + " " + (int)(a.position.y)+ " " + (a.right ? "1" : "0") + " " + (a.special? "1" : "0") + "\n";
 		}
 		
 		FileHandle file = Gdx.files.absolute("C:/temp/" + path);	
@@ -233,7 +268,9 @@ public class BaddieBuilder
 	
 	public void dispose()
 	{
-		spikyTexture.dispose();
+		this.spikyTexture.dispose();
+		this.spikyDeadTexture.dispose();
+		this.ballyTexture.dispose();
 	}
 	
 }

@@ -59,6 +59,8 @@ public class TestStage implements Screen
 	
 	private float [] cloudX;
 	
+	private int state;
+	
 	public TestStage(SpriteBatch batch) {
 		super();
 		this.batch = batch;
@@ -83,7 +85,7 @@ public class TestStage implements Screen
 			coinRegion[i] = new TextureRegion(coin, i * 16, 0, 16, 16);
 		}
 		
-		
+		this.state = 0;
 		
 		TextureRegion [] tilesRegion = new TextureRegion[3 * 11];
 		int current = 0;
@@ -126,7 +128,8 @@ public class TestStage implements Screen
 		int [] solids = {10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21};
 		this.map.setSolids(solids);
 		
-		this.player = new Player(24f, 112f, map, camera);
+		//this.player = new Player(24f, 122f, map, camera);
+		this.player = new Player(2024f, 122f, map, camera);
 		this.player.fall();
 		
 		this.coins = new CoinManager(player, coinRegion, coinSound, camera);
@@ -141,6 +144,7 @@ public class TestStage implements Screen
 	
 	public void update(float delta)
 	{
+		delta *= C.time;
 		
 		this.intro += delta * 55 + delta * this.intro / 3f;
 		
@@ -179,9 +183,6 @@ public class TestStage implements Screen
 			this.player.die();
 		}
 		
-		if(Gdx.input.isKeyJustPressed(Input.Keys.UP)) this.player.changeHp(1);
-		else if(Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) this.player.changeHp(-1);
-		
 		if(C.debug)
 		{
 			if(Gdx.input.isKeyJustPressed(Input.Keys.F1))
@@ -205,11 +206,21 @@ public class TestStage implements Screen
 		}
 		else
 		{
-			this.player.update(Gdx.graphics.getDeltaTime());
+			this.player.update(delta);
 			
 		}
-				
-
+		
+		if(C.time < 1)
+		{
+			C.time += delta / C.time ;
+			if(C.time > 1)C.time = 1;
+		}
+		if(C.time > 1)
+		{
+			C.time -= delta / C.time;
+			if(C.time < 1)C.time = 1;
+		}
+	
 		this.baddies.update(delta);
 		
 		this.coins.update(delta);
@@ -237,12 +248,21 @@ public class TestStage implements Screen
 				this.camera.position.y -= delta * 120f;
 		}
 		
-		if(this.camera.position.x < this.camera.viewportWidth / 2f)
+		if(this.camera.position.x < this.camera.viewportWidth / 2f && this.currentState < 2)
+		{
 			this.camera.position.x = camera.viewportWidth / 2f;
+		}
+		
 		if(camera.position.y < camera.viewportHeight / 2f)
 			camera.position.y = camera.viewportHeight / 2f;
 		if(camera.position.x > 2100)
+		{
+			if(this.currentState < 2)
+			{
+				this.currentState = 2;
+			}
 			camera.position.x = 2100;
+		}
 				
 		float camX = this.camera.position.x - this.camera.viewportWidth /2f;
 		float camY = this.camera.position.y - this.camera.viewportHeight /2f;
@@ -259,10 +279,20 @@ public class TestStage implements Screen
 			}
 			else
 			{
-				player.respawn(1060f, 112f);
+				if(this.currentState == 0)
+					player.respawn(40f, 112f);
+				else if(this.currentState == 1)
+					player.respawn(1070f, 112f);
 				this.player.fallParachute();
 			}
 		}
+		
+		if(player.position.x > 980 && this.currentState == 0)
+		{
+			this.currentState = 1;
+		}
+		
+		//if(player.position <)
 		
 		this.off = camX / 1.2f;
 		this.offy = camY / 1.2f + 16;

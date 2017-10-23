@@ -10,4 +10,6 @@ public final class C {
 	
 	public static boolean debug = false;
 	
+	public static float time = 1f;
+	
 }
