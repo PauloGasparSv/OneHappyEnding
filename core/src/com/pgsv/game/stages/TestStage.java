@@ -15,6 +15,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.pgsv.game.actors.BaddieBuilder;
 import com.pgsv.game.actors.CoinManager;
+import com.pgsv.game.actors.FirstBoss;
 import com.pgsv.game.actors.Player;
 import com.pgsv.game.consts.C;
 import com.pgsv.game.utils.Text;
@@ -31,6 +32,7 @@ public class TestStage implements Screen
 	private BaddieBuilder baddies;
 	private Player player;
 	private Text text;
+	private FirstBoss boss;
 	
 	private OrthographicCamera camera;
 	private SpriteBatch batch;
@@ -47,6 +49,7 @@ public class TestStage implements Screen
 	private Texture black;
 	private Texture allBlack;
 	private Texture wall;
+	private Texture bossTexture;
 	
 	private TextureRegion [] heartsRegion;
 	
@@ -84,6 +87,7 @@ public class TestStage implements Screen
 		this.black = new Texture(Gdx.files.internal(C.path + "ui/fade.png"));
 		this.allBlack = new Texture(Gdx.files.internal(C.path + "ui/black.png"));
 		this.wall = new Texture(Gdx.files.internal(C.path + "stages/1/wall.png"));
+		this.bossTexture = new Texture(Gdx.files.internal(C.path + "Actors/baddies/boss1.png"));
 		
 		
 		this.heartsRegion = new TextureRegion[3];
@@ -155,15 +159,17 @@ public class TestStage implements Screen
 		this.wallDelta = 0;
 		
 		
-		//this.state = -1;
-		//this.camera.zoom = 0.6f;
-		//this.camera.position.x = 78; 
-		//this.player.ground(47f);
-		//this.player.cannotControl();
-		//this.player.changeState(this.player.WALK);
+		this.boss = new FirstBoss(2190, 63, map, camera, player, this.bossTexture);
+		
+		this.state = -1;
+		this.camera.zoom = 0.6f;
+		this.camera.position.x = 78; 
+		this.player.ground(47f);
+		this.player.cannotControl();
+		this.player.changeState(this.player.WALK);
 		
 
-		this.state = 0;
+		//this.state = 0;
 	}
 	
 	public void update(float delta)
@@ -236,7 +242,7 @@ public class TestStage implements Screen
 				{
 					player.respawn(1070f, 112f);
 				}
-				
+				this.boss.init();
 				this.wallDelta = 0;
 				this.state = 0;
 				
@@ -386,6 +392,8 @@ public class TestStage implements Screen
 				player.position.x  = 2200;
 			if(player.position.x < 1984)
 				player.position.x = 1984;
+			
+			boss.update(delta);
 		}
 				
 		float camX = this.camera.position.x - 128;
@@ -450,7 +458,7 @@ public class TestStage implements Screen
 			batch.draw(this.wall, 2212, - 64 + wallDelta);
 		}
 		
-
+		if(this.state > 0) this.boss.draw(batch);
 		this.map.draw(camera, batch);
 		
 
@@ -531,6 +539,7 @@ public class TestStage implements Screen
 		this.background.dispose();
 		this.black.dispose();
 		this.allBlack.dispose();
+		this.bossTexture.dispose();
 		this.wall.dispose();
 		this.tiles.dispose();
 		this.water[0].dispose();
