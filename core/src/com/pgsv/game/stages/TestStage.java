@@ -155,15 +155,15 @@ public class TestStage implements Screen
 		this.wallDelta = 0;
 		
 		
-		this.state = -1;
-		this.camera.zoom = 0.6f;
-		this.camera.position.x = 78; 
-		this.player.ground(47f);
-		this.player.cannotControl();
-		this.player.changeState(this.player.WALK);
+		//this.state = -1;
+		//this.camera.zoom = 0.6f;
+		//this.camera.position.x = 78; 
+		//this.player.ground(47f);
+		//this.player.cannotControl();
+		//this.player.changeState(this.player.WALK);
 		
 
-		//this.state = 0;
+		this.state = 0;
 	}
 	
 	public void update(float delta)

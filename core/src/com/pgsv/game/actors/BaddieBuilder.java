@@ -111,7 +111,7 @@ public class BaddieBuilder
 		{
 			currentSheet[i] = new TextureRegion(exclamationTexture, 16 * i, 0 , 16, 14);
 		}
-		this.exclamationAnimation = new Animation<TextureRegion>(0.05f, currentSheet);
+		this.exclamationAnimation = new Animation<TextureRegion>(0.09f, currentSheet);
 		
 	}
 	
@@ -135,7 +135,7 @@ public class BaddieBuilder
 	
 	public void draw(SpriteBatch batch)
 	{
-		batch.draw(exclamationAnimation.getKeyFrame(temp,false), player.position.x,player.position.y + 16);
+//		batch.draw(exclamationAnimation.getKeyFrame(temp,false), player.position.x,player.position.y + 16);
 		
 		
 		for(Actor a : baddies)
@@ -215,10 +215,10 @@ public class BaddieBuilder
 		switch(this.currentBaddie)
 		{
 			case SPIKY:
-				this.baddies.add(new Spiky(x, y, this.right, false, this.spikyWalkAnimation,this.spikyDeathAnimation, map, player, camera));
+				this.baddies.add(new Spiky(x, y, this.right, false, this.spikyWalkAnimation,this.spikyDeathAnimation,this.exclamationAnimation, map, player, camera));
 			break;
 			case SPIKY_SMART:
-				this.baddies.add(new Spiky(x, y, this.right, true, this.spikyWalkAnimation,this.spikyDeathAnimation, map, player, camera));
+				this.baddies.add(new Spiky(x, y, this.right, true, this.spikyWalkAnimation,this.spikyDeathAnimation,this.exclamationAnimation, map, player, camera));
 			break;
 			case BALLY:
 				this.baddies.add(new Bally(x, y, this.right , map, camera, player, this.ballyAnimation));
@@ -231,7 +231,7 @@ public class BaddieBuilder
 		switch(bad)
 		{
 			case 2:
-				this.baddies.add(new Spiky(x, y, right, special, this.spikyWalkAnimation, this.spikyDeathAnimation, map, player, camera));
+				this.baddies.add(new Spiky(x, y, right, special, this.spikyWalkAnimation, this.spikyDeathAnimation,this.exclamationAnimation, map, player, camera));
 			break;
 			case 4:
 				this.baddies.add(new Bally(x, y, right , map, camera, player, this.ballyAnimation));

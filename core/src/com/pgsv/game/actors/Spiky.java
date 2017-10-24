@@ -21,6 +21,7 @@ public class Spiky extends Actor{
 	
 	private TextureRegion currentFrame;
 	
+	private Animation<TextureRegion> exclamationAnimation;
 	private Animation<TextureRegion> walkAnimation;
 	private Animation<TextureRegion> deathAnimation;
 	private Animation<TextureRegion> [] animations;
@@ -29,15 +30,19 @@ public class Spiky extends Actor{
 
 	private long lastDead;
 		
-
+	private float exclamationDelta;
+	private int seenPlayer;
+	
 	@SuppressWarnings("unchecked")
-	public Spiky(float x, float y, boolean right, boolean special, Animation<TextureRegion> walkAnimation, Animation<TextureRegion> deathAnimation, Map map, Player player, OrthographicCamera camera)
+	public Spiky(float x, float y, boolean right, boolean special, Animation<TextureRegion> walkAnimation, Animation<TextureRegion> deathAnimation,Animation<TextureRegion> exclamationAnimation, Map map, Player player, OrthographicCamera camera)
 	{
 		super(x,y,map, camera);
 		
 		this.player = player;
 		this.special = special;
 		this.right = right;
+		
+		this.exclamationAnimation = exclamationAnimation;
 		
 		this.walkAnimation = walkAnimation;
 		this.deathAnimation = deathAnimation;
@@ -61,9 +66,11 @@ public class Spiky extends Actor{
 		this.grounded = true;
 		this.ignoreMe = false;
 		
-		lastDead = 0;
+		this.seenPlayer = -1;
+		this.lastDead = 0;
 		
 		this.animationDelta = 0f;
+		this.exclamationDelta = 0f;
 		this.gravity = 0f;
 		
 		this.position = new Vector2(x, y);
@@ -75,11 +82,34 @@ public class Spiky extends Actor{
 	
 	public void update(float delta)
 	{	
+		if(seenPlayer == 0)
+		{
+			this.exclamationDelta += delta;
+			if(this.exclamationAnimation.isAnimationFinished(this.exclamationDelta))
+			{
+				this.seenPlayer = 1;
+			}
+		}
+		
 		float distX = this.position.x - this.camera.position.x;
 		ignoreMe = distX > 180 || distX < -180;
 		if(ignoreMe || isDead() || C.debug) return;
 
-		this.animationDelta += delta;
+		
+		if(seenPlayer == -1)
+		{
+			float off = player.position.x - this.position.x;
+			if(this.right && off > 10 && off < 80)
+			{
+				seenPlayer = 0;
+			}
+			if(!this.right && off > -76 && off < -10)
+			{
+				seenPlayer = 0;
+			}
+		}
+		
+		if(seenPlayer == 1)this.animationDelta += delta;
 		
 		if(this.currentState == SMOOCHED)
 		{
@@ -87,14 +117,17 @@ public class Spiky extends Actor{
 				die();
 			return;
 		}
-			
-		if(this.right)
+		
+		if(seenPlayer == 1)
 		{
-			this.position.x += this.speed.x * delta;
-		}
-		else
-		{
-			this.position.x -= this.speed.x * delta;
+			if(this.right)
+			{
+				this.position.x += this.speed.x * delta;
+			}
+			else
+			{
+				this.position.x -= this.speed.x * delta;
+			}
 		}
 		
 	
@@ -148,6 +181,7 @@ public class Spiky extends Actor{
 			if(player.position.y > this.position.y + 2)
 			{
 				changeState(SMOOCHED);
+				this.seenPlayer = 1;
 				this.lastDead = System.currentTimeMillis();
 				player.jump(true);
 			}
@@ -187,6 +221,11 @@ public class Spiky extends Actor{
 		batch.draw(this.currentFrame,this.position.x + offX,this.position.y);
 		
 		batch.setColor(1f, 1f, 1f, 1f);
+		
+		if(this.seenPlayer == 0)
+		{
+			batch.draw(this.exclamationAnimation.getKeyFrame(this.exclamationDelta,false), this.position.x, this.position.y + 14);
+		}
 	}
 	
 	public void ground(float y)
