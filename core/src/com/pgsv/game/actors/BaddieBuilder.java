@@ -29,10 +29,14 @@ public class BaddieBuilder
 	private Texture spikyTexture;
 	private Texture spikyDeadTexture;
 	private Texture ballyTexture;	
+	private Texture exclamationTexture;
 	
 	private Animation<TextureRegion> spikyWalkAnimation;
 	private Animation<TextureRegion> spikyDeathAnimation;
 	private Animation<TextureRegion> ballyAnimation;
+	private Animation<TextureRegion> exclamationAnimation;
+	
+	float temp;
 	
 	private TextureRegion [] baddiePreview;
 	
@@ -80,6 +84,7 @@ public class BaddieBuilder
 		this.spikyTexture = new Texture(Gdx.files.internal(C.path + "Actors/baddies/bullseye.png"));
 		this.ballyTexture = new Texture(Gdx.files.internal(C.path + "Actors/baddies/bally14.png"));
 		this.spikyDeadTexture = new Texture(Gdx.files.internal(C.path + "Actors/baddies/spikyDead.png"));
+		this.exclamationTexture = new Texture(Gdx.files.internal(C.path + "stages/exclamation.png"));
 		
 		TextureRegion [] currentSheet = new TextureRegion[6];
 		for(int i = 0; i < currentSheet.length; i ++)
@@ -101,6 +106,12 @@ public class BaddieBuilder
 		}
 		this.ballyAnimation = new Animation<TextureRegion>(0.15f, currentSheet);
 		
+		currentSheet = new TextureRegion[6];
+		for(int i = 0; i < 6; i ++ )
+		{
+			currentSheet[i] = new TextureRegion(exclamationTexture, 16 * i, 0 , 16, 14);
+		}
+		this.exclamationAnimation = new Animation<TextureRegion>(0.05f, currentSheet);
 		
 	}
 	
@@ -118,10 +129,15 @@ public class BaddieBuilder
 			for(Actor a: this.remove) this.baddies.remove(a);
 			this.remove.clear();
 		}
+		if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) temp = 0f;
+		temp += delta;
 	}
 	
 	public void draw(SpriteBatch batch)
 	{
+		batch.draw(exclamationAnimation.getKeyFrame(temp,false), player.position.x,player.position.y + 16);
+		
+		
 		for(Actor a : baddies)
 		{
 			a.draw(batch);
@@ -281,6 +297,7 @@ public class BaddieBuilder
 		this.spikyTexture.dispose();
 		this.spikyDeadTexture.dispose();
 		this.ballyTexture.dispose();
+		this.exclamationTexture.dispose();
 	}
 	
 }
