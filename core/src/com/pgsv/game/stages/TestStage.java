@@ -44,6 +44,9 @@ public class TestStage implements Screen
 	private Texture coin;
 	private Texture background;
 	private Texture tiles;
+	private Texture black;
+	private Texture allBlack;
+	private Texture wall;
 	
 	private TextureRegion [] heartsRegion;
 	
@@ -56,10 +59,13 @@ public class TestStage implements Screen
 	private float off;
 	private float offy;
 	private float waterDelta;
+	private float fadeDelta;
+	private float wallDelta;
 	
 	private float [] cloudX;
 	
 	private int state;
+	private int fadeState;
 	
 	public TestStage(SpriteBatch batch) {
 		super();
@@ -75,6 +81,10 @@ public class TestStage implements Screen
 		this.titleCard = new Texture(Gdx.files.internal(C.path + "stages/1/titleCard.png"));
 		this.coin = new Texture(Gdx.files.internal(C.path + "stages/coin.png"));
 		this.hearts = new Texture(Gdx.files.internal(C.path + "ui/heart.png"));
+		this.black = new Texture(Gdx.files.internal(C.path + "ui/fade.png"));
+		this.allBlack = new Texture(Gdx.files.internal(C.path + "ui/black.png"));
+		this.wall = new Texture(Gdx.files.internal(C.path + "stages/1/wall.png"));
+		
 		
 		this.heartsRegion = new TextureRegion[3];
 		for(int i = 0; i < 3; i++) this.heartsRegion[i] = new TextureRegion(hearts, i * 19, 0, 19, 16);
@@ -85,7 +95,6 @@ public class TestStage implements Screen
 			coinRegion[i] = new TextureRegion(coin, i * 16, 0, 16, 16);
 		}
 		
-		this.state = 0;
 		
 		TextureRegion [] tilesRegion = new TextureRegion[3 * 11];
 		int current = 0;
@@ -128,9 +137,9 @@ public class TestStage implements Screen
 		int [] solids = {10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21};
 		this.map.setSolids(solids);
 		
-		this.player = new Player(24f, 122f, map, camera);
+		this.player = new Player(-10f, 47f, map, camera);
 		//this.player = new Player(2024f, 122f, map, camera);
-		this.player.fall();
+		//this.player.fall();
 		
 		this.coins = new CoinManager(player, coinRegion, coinSound, camera);
 		this.coins.loadCoins("testMapCoins.broc");
@@ -140,13 +149,101 @@ public class TestStage implements Screen
 		
 		this.intro = 0;
 		C.debug = false;
+		
+		this.fadeState = 2;
+		this.fadeDelta = 60;
+		this.wallDelta = 0;
+		
+		
+		this.state = -1;
+		this.camera.zoom = 0.6f;
+		this.camera.position.x = 78; 
+		this.player.ground(47f);
+		this.player.cannotControl();
+		this.player.changeState(this.player.WALK);
+		
+
+		//this.state = 0;
 	}
 	
 	public void update(float delta)
 	{
 		delta *= C.time;
 		
-		this.intro += delta * 55 + delta * this.intro / 3f;
+		
+		if(state == -1)
+		{
+			if(this.player.getState() == this.player.WALK)
+			{
+				this.player.position.x += delta * 40f;
+			}
+			
+			if(this.player.position.x > 58f && this.player.getState() != this.player.IDLE)
+			{
+				this.player.changeState(this.player.IDLE);
+			}
+			
+			if(this.camera.zoom < 1 && this.player.getState() == this.player.IDLE)
+			{
+				this.camera.zoom += delta * 0.2f;
+				this.camera.position.x += delta * 25f;
+				if(this.camera.zoom > 1 )
+				{
+					this.camera.zoom = 1;
+					this.state = 0;
+					this.player.canControl();
+				}
+				
+			}
+		}
+		else if(state == 0)
+		{
+			if(this.player.position.x > 2110)
+			{
+				this.state = 1;
+			}
+		}
+		
+		//0 = BLACK
+		//1 = FROM BLACK TO OK
+		//2 = OK
+		//3 = FROM OK TO BLACK
+		
+		if(this.fadeState == 1)
+		{
+			this.fadeDelta += delta * 40f + this.fadeDelta * delta;
+			if(this.fadeDelta > 60f)
+			{
+				this.fadeDelta = 60f;
+				this.fadeState = 2;
+			}
+		}
+		
+		if(this.fadeState == 3)
+		{
+			this.fadeDelta -= delta * 50f + this.fadeDelta * delta;
+			
+			if(this.fadeDelta < 1)
+			{
+				this.fadeDelta = 1;
+				this.fadeState = 1;
+				
+				if(this.currentState == 0)
+				{
+					player.respawn(40f, 112f);
+				}
+				else if(this.currentState == 1)
+				{
+					player.respawn(1070f, 112f);
+				}
+				
+				this.wallDelta = 0;
+				this.state = 0;
+				
+				this.player.fallParachute();
+			}
+		}
+		
 		
 		if(Gdx.input.isKeyJustPressed(Input.Keys.F2))
 		{
@@ -220,12 +317,20 @@ public class TestStage implements Screen
 			C.time -= delta / C.time;
 			if(C.time < 1)C.time = 1;
 		}
+		
+		this.intro += delta * 55 + delta * this.intro / 3f;
+		
 	
 		this.baddies.update(delta);
 		
 		this.coins.update(delta);
 		
-		if(!C.debug && !this.player.isDead())
+		if(Gdx.input.isKeyPressed(Input.Keys.UP))
+			fadeDelta += delta;
+		if(Gdx.input.isKeyPressed(Input.Keys.DOWN))
+			fadeDelta -= delta;
+		
+		if(!C.debug && !this.player.isDead() && this.state > -1)
 		{
 			if(this.player.position.x > this.camera.position.x + 4f)
 				this.camera.position.x = this.player.position.x - 4f;	
@@ -248,13 +353,13 @@ public class TestStage implements Screen
 				this.camera.position.y -= delta * 120f;
 		}
 		
-		if(this.camera.position.x < this.camera.viewportWidth / 2f && this.currentState < 2)
+		if(this.camera.position.x < 128 && this.currentState < 2 && this.state > -1)
 		{
-			this.camera.position.x = camera.viewportWidth / 2f;
+			this.camera.position.x = 128;
 		}
 		
-		if(camera.position.y < camera.viewportHeight / 2f)
-			camera.position.y = camera.viewportHeight / 2f;
+		if(camera.position.y < 72 && this.state > -1)
+			camera.position.y = 72;
 		if(camera.position.x > 2100)
 		{
 			if(this.currentState < 2)
@@ -263,9 +368,28 @@ public class TestStage implements Screen
 			}
 			camera.position.x = 2100;
 		}
+		
+		if(this.state > 0)
+		{
+			if(this.wallDelta < 94)
+			{
+				this.wallDelta += delta * 34f;
+			}
+			else
+			{
+				this.wallDelta = 94;
+			}
+			
+			if(this.camera.position.x < 2100)
+				this.camera.position.x = 2100;
+			if(player.position.x  > 2200)
+				player.position.x  = 2200;
+			if(player.position.x < 1984)
+				player.position.x = 1984;
+		}
 				
-		float camX = this.camera.position.x - this.camera.viewportWidth /2f;
-		float camY = this.camera.position.y - this.camera.viewportHeight /2f;
+		float camX = this.camera.position.x - 128;
+		float camY = this.camera.position.y - 72;
 		
 		if(this.player.position.x < -10)
 			this.player.position.x = -10;
@@ -277,13 +401,10 @@ public class TestStage implements Screen
 				player.position.y = camY - 24f;
 				player.die();
 			}
-			else
+			else if(fadeState != 3)
 			{
-				if(this.currentState == 0)
-					player.respawn(40f, 112f);
-				else if(this.currentState == 1)
-					player.respawn(1070f, 112f);
-				this.player.fallParachute();
+				this.fadeState = 3;
+				this.fadeDelta = 60f;
 			}
 		}
 		
@@ -317,13 +438,19 @@ public class TestStage implements Screen
 		batch.draw(this.waterAnimation.getKeyFrame(waterDelta, true), this.background.getWidth() * 2 + off, offy + 17);
 		batch.draw(this.background,this.background.getWidth() * 3 + off, offy);
 		batch.draw(this.waterAnimation.getKeyFrame(waterDelta, true), this.background.getWidth() * 3 + off, offy + 17);
-		
 
 		for(int i = 1; i < 12; i ++)
 		{
 			batch.draw(this.cloud, off + i * (i % 2 == 0? 200 : 70), 96 + offy + (i % 2 == 0? 7 : 2));
 		}
+
+		if(this.state > 0)
+		{
+			batch.draw(this.wall, 1972, - 64 + wallDelta);
+			batch.draw(this.wall, 2212, - 64 + wallDelta);
+		}
 		
+
 		this.map.draw(camera, batch);
 		
 
@@ -352,18 +479,7 @@ public class TestStage implements Screen
 				this.baddies.debugModeDraw(batch);
 				this.text.draw(batch,  "Baddies editor", camera.position.x - 128, camera.position.y + 62);
 			}
-		}
-		else
-		{
-			int hp = player.getHp();
-			
-			if(hp % 2 == 1)
-				batch.draw(heartsRegion[1], camera.position.x - 126 + (hp - 1) / 2 * 12, camera.position.y + 60.5f, 10, 8.5f);
-			for(int i = 0; i < hp / 2; i ++)
-				batch.draw(heartsRegion[0], camera.position.x - 126 + i * 12, camera.position.y + 60.5f, 10, 8.5f);	
-			for(int i = 0; i < 3; i ++)
-				batch.draw(heartsRegion[2], camera.position.x - 126 + i * 12, camera.position.y + 60.5f, 10, 8.5f);
-		}
+		}	
 				
 		if(this.intro < 2000)
 		{
@@ -380,6 +496,16 @@ public class TestStage implements Screen
 				batch.draw(this.titleCard, camera.position.x + 160 + 320 - this.intro, camera.position.y + 24);
 			}	
 		}
+		
+		if(this.fadeState == 0)
+		{
+			batch.draw(allBlack, camera.position.x - 128 , camera.position.y  - 72);
+		}
+		else if(this.fadeState != 2)
+		{
+			batch.draw(black, camera.position.x - 128 - 128 * (fadeDelta - 1), camera.position.y  - 72 - 72 * (fadeDelta - 1), 256 * fadeDelta, 144 * fadeDelta);
+		}
+		
 	}
 	
 	
@@ -403,6 +529,9 @@ public class TestStage implements Screen
 		this.text.dispose();
 		this.player.dispose();
 		this.background.dispose();
+		this.black.dispose();
+		this.allBlack.dispose();
+		this.wall.dispose();
 		this.tiles.dispose();
 		this.water[0].dispose();
 		this.water[1].dispose();

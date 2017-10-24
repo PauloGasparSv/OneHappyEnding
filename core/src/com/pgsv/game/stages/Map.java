@@ -109,8 +109,8 @@ public class Map {
 	
 	public void editMode(OrthographicCamera camera)
 	{
-		int x = (int) ( Gdx.input.getX() * 0.2f  + camera.position.x - camera.viewportWidth / 2f);
-		int y = (int) (144 - Gdx.input.getY()  * 0.2f + camera.position.y - camera.viewportHeight / 2f);
+		int x = (int) ( Gdx.input.getX() * 0.2f  + camera.position.x - 128);
+		int y = (int) (144 - Gdx.input.getY()  * 0.2f + camera.position.y - 72);
 		
 		this.preview.x = x / 16;
 		this.preview.y = y / 16;
@@ -179,8 +179,8 @@ public class Map {
 	
 	public void draw(OrthographicCamera camera, SpriteBatch batch)
 	{
-		float w = camera.viewportWidth;
-		float h = camera.viewportHeight;
+		float w = 256;
+		float h = 144;
 		float cameraX = camera.position.x - w / 2f;
 		float cameraY = camera.position.y - h / 2f;
 		

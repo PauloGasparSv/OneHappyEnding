@@ -11,13 +11,16 @@ import com.badlogic.gdx.math.Vector3;
 import com.pgsv.game.consts.C;
 import com.pgsv.game.stages.Map;
 
-public class Bally extends Actor
+public class FirstBoss extends Actor
 {
-	private final int IDLE = 0, WALK = 1, JUMP = 2, DEAD = 3;
+	private final int INTRO = -1,IDLE = 0, WALK = 1, JUMP = 2, DEAD = 3;
 	
 	private Player player;
 
 	private Animation<TextureRegion> rollingAnimation;
+	
+	private Animation<TextureRegion> hitAnimation;
+	private Animation<TextureRegion> normalAnimation;
 	
 	private TextureRegion currentFrame;
 	
@@ -28,12 +31,23 @@ public class Bally extends Actor
 	private boolean ignoreMe;
 	
 	@SuppressWarnings("unchecked")
-	public Bally(float x, float y, boolean right,Map map, OrthographicCamera camera, Player player,Animation<TextureRegion> rollingAnimation) 
+	public FirstBoss(float x, float y, boolean right,Map map, OrthographicCamera camera, Player player,Texture myTexture) 
 	{
 		super(x, y, map, camera);
-	
 		
-		this.rollingAnimation = rollingAnimation;
+		TextureRegion [] regions = new TextureRegion[2];
+		for(int i = 0; i < 2; i ++ )
+		{
+			regions[i] = new TextureRegion(myTexture, 19 * i, 0 , 19, 63);
+		}
+		this.normalAnimation = new Animation<TextureRegion>(0.15f, regions);
+		
+		regions = new TextureRegion[2];
+		for(int i = 0; i < 2; i ++ )
+		{
+			regions[i] = new TextureRegion(myTexture, 19 * i, 63, 19, 63);
+		}
+		this.normalAnimation = new Animation<TextureRegion>(0.15f, regions);
 		
 		this.player = player;
 		this.rect = new Rectangle(0,0, 9,10);

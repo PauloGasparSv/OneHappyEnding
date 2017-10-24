@@ -149,7 +149,6 @@ public class Spiky extends Actor{
 			{
 				changeState(SMOOCHED);
 				this.lastDead = System.currentTimeMillis();
-				C.time = 0.1f;
 				player.jump(true);
 			}
 			else

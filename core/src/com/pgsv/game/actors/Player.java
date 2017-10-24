@@ -19,7 +19,7 @@ import com.pgsv.game.stages.Map;
 
 public class Player extends Actor{
 	
-	private final int IDLE = 0, WALK = 1, JUMP = 5, DEAD = 6;
+	public final int IDLE = 0, WALK = 1, JUMP = 5, DEAD = 6;
 	
 	private Controller in;
 	
@@ -44,14 +44,15 @@ public class Player extends Actor{
 	private boolean respawn;
 	private boolean blocked;
 	private boolean pressingJump; //CONTROLLER ONLY
+	private boolean hasControl;
 	
 	private int jumpCount;
 	private int coins;
 	private int hp;
 	
 	private float angle;
-	
 	private float blockedTime;
+	
 	
 	
 	@SuppressWarnings("unchecked")
@@ -108,6 +109,8 @@ public class Player extends Actor{
 		
 		this.hitBox = new Rectangle();
 		
+		this.hasControl = true;
+		
 		this.init(x, y);
 	}
 	
@@ -142,7 +145,8 @@ public class Player extends Actor{
 			deathUpdate(delta);
 			return;
 		}
-		controls(delta);
+
+		if(hasControl) controls(delta);
 		
 		this.animationDelta += delta;
 	
@@ -276,6 +280,17 @@ public class Player extends Actor{
 				this.gravity = 100f;
 			}
 		}
+	}
+	
+	
+	public void cannotControl()
+	{
+		this.hasControl = false;
+	}
+	
+	public void canControl()
+	{
+		this.hasControl = true;
 	}
 	
 	private void controller(float delta)
@@ -415,9 +430,32 @@ public class Player extends Actor{
 		}
 	}
 	
+	public void jump(float off)
+	{
+		changeState(JUMP);
+		long id = this.jumpSound.play(0.1f);
+		
+		this.jumpSound.setPitch(id, 1.4f);
+		this.jumpSound.setVolume(id, 0.07f);
+		
+		
+		this.grounded = false;
+		this.position.y += 4f;
+		this.jumpCount ++;
+		
+		this.gravity = 180f * off;
+		this.jumpCount = 1;
+		
+	}
+	
 	public boolean isDead()
 	{
 		return this.currentState == DEAD;
+	}
+	
+	public int getState()
+	{
+		return this.currentState;
 	}
 	
 	public void die()
