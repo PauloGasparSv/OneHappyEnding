@@ -32,7 +32,6 @@ public class FirstBoss extends Actor
 	private float puffDelta;
 	
 	private boolean up;
-	private boolean end;
 	
 	private int state;
 	private int hits;
@@ -40,8 +39,6 @@ public class FirstBoss extends Actor
 	private long timer;
 	private long hitTimer;
 	
-	
-	@SuppressWarnings("unchecked")
 	public FirstBoss(float x, float y,Map map, OrthographicCamera camera, Player player,Texture myTexture,Texture puffTexture) 
 	{
 		super(x, y, map, camera);

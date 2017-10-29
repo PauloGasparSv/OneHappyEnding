@@ -7,7 +7,7 @@ import com.badlogic.gdx.controllers.Controller;
 import com.badlogic.gdx.controllers.Controllers;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.pgsv.game.consts.C;
-import com.pgsv.game.stages.TestStage;
+import com.pgsv.game.stages.MainMenu;
 
 public class MyGdxGame extends Game {
 
@@ -26,7 +26,7 @@ public class MyGdxGame extends Game {
 		}
 		C.in = myController;
 		
-		setScreen(new TestStage(batch));
+		setScreen(new MainMenu(batch));
 	}
 
 	@Override

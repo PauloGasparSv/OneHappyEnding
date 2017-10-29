@@ -11,8 +11,6 @@ public class Text
 	private Texture sheet;
 	private TextureRegion [] abc;
 	
-	private String text;
-	
 	public Text()
 	{
 		this.sheet = new Texture(Gdx.files.internal(C.path + "ui/font.png"));

@@ -12,7 +12,7 @@ import com.pgsv.game.stages.Map;
 
 public class Bally extends Actor
 {
-	private final int IDLE = 0, WALK = 1, JUMP = 2, DEAD = 3;
+	private final int WALK = 1, DEAD = 3;
 	
 	private Player player;
 
@@ -26,7 +26,6 @@ public class Bally extends Actor
 	
 	private boolean ignoreMe;
 	
-	@SuppressWarnings("unchecked")
 	public Bally(float x, float y, boolean right,Map map, OrthographicCamera camera, Player player,Animation<TextureRegion> rollingAnimation) 
 	{
 		super(x, y, map, camera);
