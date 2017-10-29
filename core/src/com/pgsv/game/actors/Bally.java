@@ -1,7 +1,6 @@
 package com.pgsv.game.actors;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -36,7 +35,7 @@ public class Bally extends Actor
 		this.rollingAnimation = rollingAnimation;
 		
 		this.player = player;
-		this.rect = new Rectangle(0,0, 9,10);
+		this.rect = new Rectangle(0,0, 6,10);
 		this.right = right;
 		this.init(x, y);
 	}
@@ -155,7 +154,7 @@ public class Bally extends Actor
 	public void draw(SpriteBatch batch)
 	{
 		if(ignoreMe || isDead()) return;
-		float offX = 0;
+		float offX = -2;
 		
 		this.currentFrame = this.rollingAnimation.getKeyFrame(this.animationDelta, true);
 		

@@ -44,12 +44,14 @@ public class TestStage implements Screen
 	private Texture hearts;
 	private Texture titleCard;
 	private Texture coin;
+	private Texture sparkle;
 	private Texture background;
 	private Texture tiles;
 	private Texture black;
 	private Texture allBlack;
 	private Texture wall;
 	private Texture bossTexture;
+	private Texture puff;
 	
 	private TextureRegion [] heartsRegion;
 	
@@ -70,6 +72,15 @@ public class TestStage implements Screen
 	private int state;
 	private int fadeState;
 	
+	private String bossText;
+	private long bossTextLong;
+	
+	private boolean show;
+	private boolean shown;
+	
+	private boolean endStage;
+	private float endStageAlpha;
+	
 	public TestStage(SpriteBatch batch) {
 		super();
 		this.batch = batch;
@@ -83,11 +94,13 @@ public class TestStage implements Screen
 		this.background = new Texture(Gdx.files.internal(C.path + "stages/1/back.png"));
 		this.titleCard = new Texture(Gdx.files.internal(C.path + "stages/1/titleCard.png"));
 		this.coin = new Texture(Gdx.files.internal(C.path + "stages/coin.png"));
+		this.sparkle = new Texture(Gdx.files.internal(C.path + "stages/sparkle.png"));
 		this.hearts = new Texture(Gdx.files.internal(C.path + "ui/heart.png"));
 		this.black = new Texture(Gdx.files.internal(C.path + "ui/fade.png"));
 		this.allBlack = new Texture(Gdx.files.internal(C.path + "ui/black.png"));
 		this.wall = new Texture(Gdx.files.internal(C.path + "stages/1/wall.png"));
 		this.bossTexture = new Texture(Gdx.files.internal(C.path + "Actors/baddies/boss1.png"));
+		this.puff = new Texture(Gdx.files.internal(C.path + "stages/puff_alpha.png"));
 		
 		
 		this.heartsRegion = new TextureRegion[3];
@@ -97,6 +110,12 @@ public class TestStage implements Screen
 		for(int i = 0; i < 4; i++)
 		{
 			coinRegion[i] = new TextureRegion(coin, i * 16, 0, 16, 16);
+		}
+		
+		TextureRegion [] sparkleRegion = new TextureRegion[4];
+		for(int i = 0; i < 4; i++)
+		{
+			sparkleRegion [i] = new TextureRegion(sparkle, i * 16, 0, 16, 12);
 		}
 		
 		
@@ -145,7 +164,7 @@ public class TestStage implements Screen
 		//this.player = new Player(2024f, 122f, map, camera);
 		//this.player.fall();
 		
-		this.coins = new CoinManager(player, coinRegion, coinSound, camera);
+		this.coins = new CoinManager(player, coinRegion, sparkleRegion, coinSound, camera);
 		this.coins.loadCoins("testMapCoins.broc");
 		
 		this.baddies = new BaddieBuilder(player, camera, map, text);
@@ -159,7 +178,15 @@ public class TestStage implements Screen
 		this.wallDelta = 0;
 		
 		
-		this.boss = new FirstBoss(2190, 63, map, camera, player, this.bossTexture);
+		this.boss = new FirstBoss(2190, 63, map, camera, player, this.bossTexture, this.puff);
+		
+		this.bossText = "";
+		this.bossTextLong = System.currentTimeMillis();
+		this.show = true;
+		this.shown = false;
+		this.endStage = false;
+		this.endStageAlpha = 0f;
+		
 		
 		this.state = -1;
 		this.camera.zoom = 0.6f;
@@ -168,7 +195,7 @@ public class TestStage implements Screen
 		this.player.cannotControl();
 		this.player.changeState(this.player.WALK);
 		
-
+		
 		//this.state = 0;
 	}
 	
@@ -238,14 +265,17 @@ public class TestStage implements Screen
 				{
 					player.respawn(40f, 112f);
 				}
-				else if(this.currentState == 1)
+				else if(this.currentState == 1 || this.currentState == 2)
 				{
-					player.respawn(1070f, 112f);
+					player.respawn(2024f, 142f);
 				}
 				this.boss.init();
 				this.wallDelta = 0;
 				this.state = 0;
-				
+				this.bossText = "";
+				this.bossTextLong = System.currentTimeMillis();
+				this.show = true;
+				this.shown = false;
 				this.player.fallParachute();
 			}
 		}
@@ -394,8 +424,64 @@ public class TestStage implements Screen
 				player.position.x = 1984;
 			
 			boss.update(delta);
+			
+			if(this.boss.isDead() && !this.endStage)
+			{
+				this.endStage = true;
+				this.endStageAlpha = 0;
+			}
+			
+			if(!this.shown)
+			{	
+				if(this.show)
+				{
+					if(System.currentTimeMillis() - bossTextLong > 50)
+					{
+						if(this.bossText.length() != 23)
+						{
+							this.bossText = "Prepare to fight shame!".substring(0, this.bossText.length() + 1);
+						}
+						else
+						{
+							this.show = false;
+						}
+						this.bossTextLong = System.currentTimeMillis();
+					}
+				}
+				else
+				{
+					if(this.bossText.length() == 23)
+					{
+						if(System.currentTimeMillis() - this.bossTextLong > 1200)
+						{
+							this.bossText = "Prepare to fight shame";
+							this.bossTextLong = System.currentTimeMillis();
+						}
+					}
+					else
+					{
+						if(System.currentTimeMillis() - bossTextLong > 50)
+						{
+							this.bossText = "Prepare to fight shame!".substring(0, this.bossText.length() - 1);
+							this.bossTextLong = System.currentTimeMillis();
+							if(this.bossText.length() == 0)
+							{
+								this.shown = true;
+							}
+						}
+					}
+
+				}
+			}
 		}
 				
+		if(this.endStage)
+		{
+			this.endStageAlpha += delta * 0.6f;
+			if(this.endStageAlpha > 1)
+				this.endStageAlpha = 1;
+		}
+		
 		float camX = this.camera.position.x - 128;
 		float camY = this.camera.position.y - 72;
 		
@@ -456,9 +542,9 @@ public class TestStage implements Screen
 		{
 			batch.draw(this.wall, 1972, - 64 + wallDelta);
 			batch.draw(this.wall, 2212, - 64 + wallDelta);
+			this.boss.draw(batch);
 		}
 		
-		if(this.state > 0) this.boss.draw(batch);
 		this.map.draw(camera, batch);
 		
 
@@ -466,6 +552,8 @@ public class TestStage implements Screen
 		this.coins.draw(batch);
 		
 		this.player.draw(this.batch);
+		
+		if(this.state > 0)this.text.draw(batch, this.bossText, 2008, 120);
 		
 		if(C.debug)
 		{
@@ -514,6 +602,13 @@ public class TestStage implements Screen
 			batch.draw(black, camera.position.x - 128 - 128 * (fadeDelta - 1), camera.position.y  - 72 - 72 * (fadeDelta - 1), 256 * fadeDelta, 144 * fadeDelta);
 		}
 		
+		if(this.endStage)
+		{
+			batch.setColor(1,1,1,endStageAlpha);
+			batch.draw(allBlack, camera.position.x - 128 , camera.position.y  - 72);
+			batch.setColor(1,1,1,1);
+		}
+		
 	}
 	
 	
@@ -549,6 +644,8 @@ public class TestStage implements Screen
 		this.titleCard.dispose();
 		this.coinSound.dispose();
 		this.batch.dispose();
+		this.sparkle.dispose();
+		this.puff.dispose();
 	}
 
 	@Override

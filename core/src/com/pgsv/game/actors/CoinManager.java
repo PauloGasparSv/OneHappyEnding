@@ -19,8 +19,10 @@ import com.pgsv.game.consts.C;
 public class CoinManager {
 
 	public LinkedList<Coin> coins;
+	public LinkedList<Coin> removeLater;
 	
 	private Animation<TextureRegion> coinAnimation;
+	private Animation<TextureRegion> sparkleAnimation;
 	
 	private Sound coinSound;
 	
@@ -30,13 +32,18 @@ public class CoinManager {
 	
 	private Vector2 preview;
 	
+	private boolean hasDead;
+	
 	private boolean mousePressed;
 	
-	public CoinManager(Player player, TextureRegion [] coinRegion, Sound coinSound,OrthographicCamera camera)
+	public CoinManager(Player player, TextureRegion [] coinRegion,TextureRegion [] sparkleRegion, Sound coinSound,OrthographicCamera camera)
 	{
 		this.coins = new LinkedList<Coin>();
+		this.removeLater = new LinkedList<Coin>();
+		this.hasDead = false;
 		this.player = player;
 		this.coinAnimation = new Animation<TextureRegion>(0.22f,coinRegion);
+		this.sparkleAnimation = new Animation<TextureRegion>(0.09f,sparkleRegion);
 		this.coinSound = coinSound;
 		this.camera = camera;
 		this.preview = new Vector2();
@@ -45,9 +52,22 @@ public class CoinManager {
 	
 	public void update(float delta)
 	{
-		for(Coin c : coins)
+		for(Coin c : this.coins)
 		{
 			c.update(delta);
+			if(c.isDead())
+			{
+				this.hasDead = true;
+				this.removeLater.add(c);
+			}
+		}
+		if(this.hasDead)
+		{
+			this.hasDead = false;
+			for(Coin c : this.removeLater)
+			{
+				this.coins.remove(c);
+			}
 		}
 	}
 	
@@ -114,7 +134,7 @@ public class CoinManager {
 	
 	public void addCoin(float x, float y)
 	{
-		this.coins.add(new Coin(this.coinAnimation, this.player, this.coinSound, this.camera, x, y));	
+		this.coins.add(new Coin(this.coinAnimation,this.sparkleAnimation, this.player, this.coinSound, this.camera, x, y));	
 	}
 	
 	public int numCoins()

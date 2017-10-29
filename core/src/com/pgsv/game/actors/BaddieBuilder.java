@@ -32,7 +32,10 @@ public class BaddieBuilder
 	private Texture exclamationTexture;
 	
 	private Animation<TextureRegion> spikyWalkAnimation;
+	private Animation<TextureRegion> spikyIdleAnimation;
 	private Animation<TextureRegion> spikyDeathAnimation;
+	private Animation<TextureRegion> [] spikyAnimations;
+	
 	private Animation<TextureRegion> ballyAnimation;
 	private Animation<TextureRegion> exclamationAnimation;
 	
@@ -79,6 +82,7 @@ public class BaddieBuilder
 		this.right = false;
 	}
 	
+	@SuppressWarnings("unchecked")
 	private void setup()
 	{
 		this.spikyTexture = new Texture(Gdx.files.internal(C.path + "Actors/baddies/bullseye.png"));
@@ -93,25 +97,39 @@ public class BaddieBuilder
 		}
 		this.spikyWalkAnimation = new Animation<TextureRegion>(0.15f ,currentSheet);
 		
+		currentSheet = new TextureRegion[8];
+		for(int i = 0; i < 4; i ++)
+		{
+			currentSheet[i] = new TextureRegion(this.spikyTexture,16 * i,13,16,13);
+			currentSheet[4 + i] = new TextureRegion(this.spikyTexture,0,13,16,13);
+		}
+		this.spikyIdleAnimation = new Animation<TextureRegion>(0.18f ,currentSheet);
+		
 		currentSheet = new TextureRegion[2];
 		currentSheet[0] = new TextureRegion(this.spikyDeadTexture,0,0,16, 8);
 		currentSheet[1] = new TextureRegion(this.spikyDeadTexture,16,0, 16, 8);
-		this.spikyDeathAnimation = new Animation<TextureRegion>(0.04f,currentSheet);
-		
+		this.spikyDeathAnimation = new Animation<TextureRegion>(0.04f,currentSheet);		
 
 		currentSheet = new TextureRegion[6];
 		for(int i = 0; i < 6; i ++ )
 		{
 			currentSheet[i] = new TextureRegion(ballyTexture, 14 * i, 0 , 14, 14);
 		}
-		this.ballyAnimation = new Animation<TextureRegion>(0.15f, currentSheet);
+		this.ballyAnimation = new Animation<TextureRegion>(0.12f, currentSheet);
 		
 		currentSheet = new TextureRegion[6];
 		for(int i = 0; i < 6; i ++ )
 		{
 			currentSheet[i] = new TextureRegion(exclamationTexture, 16 * i, 0 , 16, 14);
 		}
-		this.exclamationAnimation = new Animation<TextureRegion>(0.09f, currentSheet);
+		this.exclamationAnimation = new Animation<TextureRegion>(0.072f, currentSheet);
+		
+		
+		this.spikyAnimations = new Animation[4];
+		this.spikyAnimations[0] = this.spikyIdleAnimation;
+		this.spikyAnimations[1] = this.spikyWalkAnimation;
+		this.spikyAnimations[2] = this.spikyDeathAnimation;
+		this.spikyAnimations[3] = this.exclamationAnimation;
 		
 	}
 	
@@ -215,10 +233,10 @@ public class BaddieBuilder
 		switch(this.currentBaddie)
 		{
 			case SPIKY:
-				this.baddies.add(new Spiky(x, y, this.right, false, this.spikyWalkAnimation,this.spikyDeathAnimation,this.exclamationAnimation, map, player, camera));
+				this.baddies.add(new Spiky(x, y, this.right, false, this.spikyAnimations, map, player, camera));
 			break;
 			case SPIKY_SMART:
-				this.baddies.add(new Spiky(x, y, this.right, true, this.spikyWalkAnimation,this.spikyDeathAnimation,this.exclamationAnimation, map, player, camera));
+				this.baddies.add(new Spiky(x, y, this.right, true, this.spikyAnimations, map, player, camera));
 			break;
 			case BALLY:
 				this.baddies.add(new Bally(x, y, this.right , map, camera, player, this.ballyAnimation));
@@ -231,7 +249,7 @@ public class BaddieBuilder
 		switch(bad)
 		{
 			case 2:
-				this.baddies.add(new Spiky(x, y, right, special, this.spikyWalkAnimation, this.spikyDeathAnimation,this.exclamationAnimation, map, player, camera));
+				this.baddies.add(new Spiky(x, y, right, special, this.spikyAnimations, map, player, camera));
 			break;
 			case 4:
 				this.baddies.add(new Bally(x, y, right , map, camera, player, this.ballyAnimation));

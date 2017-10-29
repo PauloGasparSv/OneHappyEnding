@@ -13,6 +13,7 @@ public class Coin
 	private Player player;
 
 	private Animation<TextureRegion> animation;
+	private Animation<TextureRegion> sparkleAnimation;
 	
 	private Rectangle rect;
 	
@@ -22,17 +23,20 @@ public class Coin
 	
 	private boolean ignoreMe;
 	private boolean active;
+	private boolean sparkle;
 	
 	private float animationDelta;
 	
-	public Coin(Animation<TextureRegion> animation, Player player, Sound sound, OrthographicCamera camera, float x, float y)
+	public Coin(Animation<TextureRegion> animation,Animation<TextureRegion> sparkle, Player player, Sound sound, OrthographicCamera camera, float x, float y)
 	{
 		this.player = player;
 		this.sound = sound;
 		this.camera = camera;
+		this.sparkleAnimation = sparkle;
 		
 		this.ignoreMe = true;
 		this.active = true; 
+		this.sparkle = false;
 		
 		this.rect = new Rectangle(x,y, 2,8);
 		this.animation = animation;
@@ -45,20 +49,28 @@ public class Coin
 		this.ignoreMe = offX > 200 || offX < -200;
 		if(this.ignoreMe || isDead()) return; 
 		
-		if(this.rect.overlaps(player.getRect()))
+		if(this.rect.overlaps(player.getRect()) && !this.sparkle)
 		{
 			this.sound.play(0.08f);
 			player.addCoin(1);
-			this.active = false;
+			this.sparkle = true;
+			this.animationDelta = 0f;
 		}
 		
+		if(this.sparkle && this.sparkleAnimation.isAnimationFinished(this.animationDelta))
+		{
+			this.active = false;
+		}
 		this.animationDelta += delta;
 	}
 	
 	public void draw(SpriteBatch batch)
 	{
 		if(!C.debug && (this.ignoreMe || isDead())) return;
-		batch.draw(this.animation.getKeyFrame(animationDelta,true), this.rect.x - 4, this.rect.y,10,10);
+		if(!this.sparkle)
+			batch.draw(this.animation.getKeyFrame(animationDelta,true), this.rect.x - 4, this.rect.y,10,10);
+		else
+			batch.draw(this.sparkleAnimation.getKeyFrame(animationDelta,false), this.rect.x - 7, this.rect.y - 2,16,12);
 	}
 	
 	public Rectangle getRect()

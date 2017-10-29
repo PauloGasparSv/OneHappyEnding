@@ -12,7 +12,7 @@ import com.pgsv.game.stages.Map;
 
 public class Spiky extends Actor{
 
-	private final int WALK = 0,DEAD = 2, SMOOCHED = 1;
+	private final int IDLE = 0,WALK = 1,DEAD = 3, SMOOCHED = 2;
 
 	private Player player;
 	
@@ -22,6 +22,7 @@ public class Spiky extends Actor{
 	private TextureRegion currentFrame;
 	
 	private Animation<TextureRegion> exclamationAnimation;
+	private Animation<TextureRegion> idleAnimation;
 	private Animation<TextureRegion> walkAnimation;
 	private Animation<TextureRegion> deathAnimation;
 	private Animation<TextureRegion> [] animations;
@@ -34,7 +35,7 @@ public class Spiky extends Actor{
 	private int seenPlayer;
 	
 	@SuppressWarnings("unchecked")
-	public Spiky(float x, float y, boolean right, boolean special, Animation<TextureRegion> walkAnimation, Animation<TextureRegion> deathAnimation,Animation<TextureRegion> exclamationAnimation, Map map, Player player, OrthographicCamera camera)
+	public Spiky(float x, float y, boolean right, boolean special, Animation<TextureRegion>[] spikyAnimations, Map map, Player player, OrthographicCamera camera)
 	{
 		super(x,y,map, camera);
 		
@@ -42,13 +43,14 @@ public class Spiky extends Actor{
 		this.special = special;
 		this.right = right;
 		
-		this.exclamationAnimation = exclamationAnimation;
-		
-		this.walkAnimation = walkAnimation;
-		this.deathAnimation = deathAnimation;
+		this.idleAnimation = spikyAnimations[0];
+		this.walkAnimation = spikyAnimations[1];
+		this.deathAnimation = spikyAnimations[2];
+		this.exclamationAnimation = spikyAnimations[3];
 		
 		//SETTING ANIMATIONS
-		this.animations = new Animation[2];
+		this.animations = new Animation[3];
+		this.animations[IDLE] = this.idleAnimation;
 		this.animations[WALK] = this.walkAnimation;
 		this.animations[SMOOCHED] = this.deathAnimation;
 	
@@ -84,10 +86,12 @@ public class Spiky extends Actor{
 	{	
 		if(seenPlayer == 0)
 		{
+			this.currentState = IDLE;
 			this.exclamationDelta += delta;
 			if(this.exclamationAnimation.isAnimationFinished(this.exclamationDelta))
 			{
 				this.seenPlayer = 1;
+				this.changeState(WALK);
 			}
 		}
 		
@@ -98,6 +102,7 @@ public class Spiky extends Actor{
 		
 		if(seenPlayer == -1)
 		{
+			this.currentState = IDLE;
 			float off = player.position.x - this.position.x;
 			if(this.right && off > 10 && off < 80)
 			{
@@ -109,7 +114,7 @@ public class Spiky extends Actor{
 			}
 		}
 		
-		if(seenPlayer == 1)this.animationDelta += delta;
+		this.animationDelta += delta;
 		
 		if(this.currentState == SMOOCHED)
 		{

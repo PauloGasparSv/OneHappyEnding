@@ -15,6 +15,7 @@ public class DesktopLauncher {
 		new LwjglApplication(new MyGdxGame(), config);
 	}
 }
+
 //CREDIT
 //ART: GrafxKid http://grafxkid.tumblr.com/
 //FONT: GravityGames https://opengameart.org/users/gravitygames
