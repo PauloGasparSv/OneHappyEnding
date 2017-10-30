@@ -53,10 +53,14 @@ public class TestStage implements Screen
 	private Texture wall;
 	private Texture bossTexture;
 	private Texture puff;
+	private Texture princess;
 	
 	private TextureRegion [] heartsRegion;
 	
 	private Animation <TextureRegion> waterAnimation;
+	
+	private Animation <TextureRegion> princessAnimation;
+	private float princessDelta;
 	
 	private TextureRegion cloud;
 	
@@ -108,6 +112,7 @@ public class TestStage implements Screen
 		this.wall = new Texture(Gdx.files.internal(C.path + "stages/1/wall.png"));
 		this.bossTexture = new Texture(Gdx.files.internal(C.path + "Actors/baddies/boss1.png"));
 		this.puff = new Texture(Gdx.files.internal(C.path + "stages/puff_alpha.png"));
+		this.princess = new Texture(Gdx.files.internal(C.path + "Actors/Princess/princess.png"));
 		
 		
 		this.heartsRegion = new TextureRegion[3];
@@ -136,6 +141,14 @@ public class TestStage implements Screen
 				current ++;
 			}
 		}
+		
+		TextureRegion [] framesPrincesa = new TextureRegion[4];
+		for(int i = 0; i < 4; i++)
+		{
+			framesPrincesa [i] = new TextureRegion(princess, i * 16, 0, 16, 24);
+		}
+		princessAnimation = new Animation<TextureRegion>(0.24f,framesPrincesa);
+		princessDelta = 0f;
 		
 		this.theme = Gdx.audio.newMusic(Gdx.files.internal(C.path + "Music/The Adventure Begins 8-bit remix.ogg"));
 		this.theme.play();
@@ -203,7 +216,7 @@ public class TestStage implements Screen
 		this.player.changeState(this.player.WALK);
 		
 		
-		//this.state = 0;
+	//	this.state = 0;
 	}
 	
 	public void update(float delta)
@@ -260,8 +273,7 @@ public class TestStage implements Screen
 			}
 		}
 		
-		System.out.println(this.currentState + " " + this.player.position.x);
-		
+	
 		if(this.fadeState == 3)
 		{
 			this.fadeDelta -= delta * 50f + this.fadeDelta * delta;
@@ -488,10 +500,12 @@ public class TestStage implements Screen
 				}
 			}
 		}
-				
+		if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE))
+			this.boss.die();
 		if(this.endStage)
 		{
-			this.endStageAlpha += delta * 0.6f;
+			this.princessDelta += delta;
+			this.endStageAlpha += delta * 0.1f;
 			if(this.endStageAlpha > 1)
 				this.endStageAlpha = 1;
 		}
@@ -618,6 +632,10 @@ public class TestStage implements Screen
 		
 		if(this.endStage)
 		{
+			float y = 170 - princessDelta * 24f;
+			if(y < 63) y = 63;
+			batch.draw(princessAnimation.getKeyFrame(princessDelta,true), 2092, y);	
+			
 			batch.setColor(1,1,1,endStageAlpha);
 			batch.draw(allBlack, camera.position.x - 128 , camera.position.y  - 72);
 			batch.setColor(1,1,1,1);
@@ -671,6 +689,7 @@ public class TestStage implements Screen
 		this.batch.dispose();
 		this.sparkle.dispose();
 		this.puff.dispose();
+		this.princess.dispose();
 	}
 
 	@Override

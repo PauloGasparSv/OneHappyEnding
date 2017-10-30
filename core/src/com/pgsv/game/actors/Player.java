@@ -295,7 +295,6 @@ public class Player extends Actor{
 	
 	private void controller(float delta)
 	{
-		System.out.println(in.getAxis(IpegaPc.AXIS_RIGHT_X) );
 		if(in.getAxis(IpegaPc.AXIS_RIGHT_X) > 0.2f)
 		{
 			this.right = true;

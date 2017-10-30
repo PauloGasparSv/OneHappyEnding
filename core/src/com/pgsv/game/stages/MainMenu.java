@@ -135,7 +135,8 @@ public class MainMenu implements Screen{
 				
 				if(Gdx.input.isKeyJustPressed(Input.Keys.ENTER) || Gdx.input.isKeyJustPressed(Input.Keys.Z)  || Gdx.input.isKeyJustPressed(Input.Keys.SPACE))
 				{
-					choosen = true;
+					if(this.current != 1)
+						choosen = true;
 				}
 				for(int i = 0; i < 3; i++)
 				{
@@ -144,7 +145,8 @@ public class MainMenu implements Screen{
 						this.current = i;
 						if(Gdx.input.isTouched())
 						{
-							choosen = true;
+							if(this.current != 1)
+								choosen = true;
 						}
 					}
 				}
