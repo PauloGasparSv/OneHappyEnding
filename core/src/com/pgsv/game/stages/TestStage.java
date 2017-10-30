@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.pgsv.game.MyGdxGame;
 import com.pgsv.game.actors.BaddieBuilder;
 import com.pgsv.game.actors.CoinManager;
 import com.pgsv.game.actors.FirstBoss;
@@ -61,6 +62,8 @@ public class TestStage implements Screen
 	
 	private float intro;
 	
+	private float firstFade;
+	
 	private float off;
 	private float offy;
 	private float waterDelta;
@@ -81,8 +84,12 @@ public class TestStage implements Screen
 	private boolean endStage;
 	private float endStageAlpha;
 	
-	public TestStage(SpriteBatch batch) {
+	private MyGdxGame game;
+	
+	public TestStage(MyGdxGame game, SpriteBatch batch) {
 		super();
+		this.game= game;
+		
 		this.batch = batch;
 		
 		this.camera = new OrthographicCamera();
@@ -186,7 +193,7 @@ public class TestStage implements Screen
 		this.shown = false;
 		this.endStage = false;
 		this.endStageAlpha = 0f;
-		
+		this.firstFade = 1;
 		
 		this.state = -1;
 		this.camera.zoom = 0.6f;
@@ -203,6 +210,7 @@ public class TestStage implements Screen
 	{
 		delta *= C.time;
 		
+		if(this.firstFade > 0) this.firstFade -= delta;
 		
 		if(state == -1)
 		{
@@ -252,6 +260,8 @@ public class TestStage implements Screen
 			}
 		}
 		
+		System.out.println(this.currentState + " " + this.player.position.x);
+		
 		if(this.fadeState == 3)
 		{
 			this.fadeDelta -= delta * 50f + this.fadeDelta * delta;
@@ -265,7 +275,11 @@ public class TestStage implements Screen
 				{
 					player.respawn(40f, 112f);
 				}
-				else if(this.currentState == 1 || this.currentState == 2)
+				else if(this.currentState == 1)
+				{
+					player.respawn(1100f, 142f);
+				}
+				else if(this.currentState == 2) 
 				{
 					player.respawn(2024f, 142f);
 				}
@@ -605,6 +619,17 @@ public class TestStage implements Screen
 		if(this.endStage)
 		{
 			batch.setColor(1,1,1,endStageAlpha);
+			batch.draw(allBlack, camera.position.x - 128 , camera.position.y  - 72);
+			batch.setColor(1,1,1,1);
+			
+			if(endStageAlpha > 0.9f)
+			{
+				this.text.draw(batch, "Thanks for playing!", 2018, 110);
+			}
+		}
+		if(this.firstFade > 0)
+		{
+			batch.setColor(1,1,1, firstFade);
 			batch.draw(allBlack, camera.position.x - 128 , camera.position.y  - 72);
 			batch.setColor(1,1,1,1);
 		}
