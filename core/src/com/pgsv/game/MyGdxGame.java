@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.pgsv.game.consts.C;
 import com.pgsv.game.stages.MainMenu;
+import com.pgsv.game.stages.TestStage;
 
 public class MyGdxGame extends Game {
 
@@ -29,7 +30,7 @@ public class MyGdxGame extends Game {
 		}
 		C.in = myController;
 		
-		setScreen(new MainMenu(this,batch));
+		setScreen(new TestStage(this,batch));
 	}
 
 	@Override

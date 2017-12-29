@@ -49,10 +49,10 @@ public class Map {
 		String mapText = mapFile.readString();
 		
 		String [] lines = mapText.split("\n");
-		String []temp = lines[0].split(" ");
+		String []temp = lines[0].split("\\s");
 		int w = Integer.parseInt(temp[0]);
 		int h = Integer.parseInt(temp[1]);
-		
+
 		this.map = new int[h][w];
 		
 		for(int line = 1; line < lines.length; line ++)

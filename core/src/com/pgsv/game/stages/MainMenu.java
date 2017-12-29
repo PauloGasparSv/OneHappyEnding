@@ -13,6 +13,8 @@ import com.badlogic.gdx.math.Vector2;
 import com.pgsv.game.MyGdxGame;
 import com.pgsv.game.consts.C;
 
+import javax.swing.JOptionPane;
+
 public class MainMenu implements Screen{
 
 	private OrthographicCamera camera;
