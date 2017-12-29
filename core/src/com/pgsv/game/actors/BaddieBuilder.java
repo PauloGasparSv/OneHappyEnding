@@ -1,9 +1,5 @@
 package com.pgsv.game.actors;
 
-import java.util.LinkedList;
-
-import javax.swing.JOptionPane;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.files.FileHandle;
@@ -17,6 +13,10 @@ import com.badlogic.gdx.math.Vector2;
 import com.pgsv.game.consts.C;
 import com.pgsv.game.stages.Map;
 import com.pgsv.game.utils.Text;
+
+import java.util.LinkedList;
+
+import javax.swing.JOptionPane;
 
 public class BaddieBuilder 
 {
@@ -291,7 +291,7 @@ public class BaddieBuilder
 		
 		for(String line : lines)
 		{
-			String [] temp = line.split(" ");
+			String [] temp = line.split("\\s");
 			this.addBaddie(Integer.parseInt(temp[0]),Integer.parseInt(temp[1]), Integer.parseInt(temp[2]),temp[3].equals("1"), temp[4].equals("1"));
 		}
 	}

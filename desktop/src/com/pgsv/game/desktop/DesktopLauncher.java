@@ -9,8 +9,8 @@ public class DesktopLauncher {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 		config.title = "One Happy Ending";
 		config.resizable = false;
-		config.width = 1280;
-		config.height = 720;
+		config.width = 3 * (1280 / 4) ;
+		config.height = 3 * (720 / 4);
 		config.fullscreen = false;
 		new LwjglApplication(new MyGdxGame(), config);
 	}

@@ -16,6 +16,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.pgsv.game.consts.C;
 import com.pgsv.game.consts.IpegaPc;
 import com.pgsv.game.stages.Map;
+import com.pgsv.game.utils.Media;
 
 public class Player extends Actor{
 	
@@ -48,45 +49,28 @@ public class Player extends Actor{
 	
 	private int jumpCount;
 	private int coins;
-	private int hp;
-	
+
 	private float angle;
 	private float blockedTime;
-	
-	
-	
-	@SuppressWarnings("unchecked")
+
 	public Player(float x, float y, Map map, OrthographicCamera camera)
 	{
 		super(x,y,map, camera);
 		
-		this.spriteSheet = new Texture(Gdx.files.internal(C.path + "Actors/hero/guy_sheet.png"));
-		
-		//IDLE ANIMATION
-		TextureRegion [] currentSheet = new TextureRegion[4];
-		for(int i = 0; i < currentSheet.length; i ++)
-		{
-			currentSheet[i] = new TextureRegion(this.spriteSheet,16 * i,0,16,16);
-		}
-		this.idleAnimation = new Animation<TextureRegion>(0.26f ,currentSheet);
-		
-		//WALK ANIMATION
-		currentSheet = new TextureRegion[3];
-		for(int i = 0; i < currentSheet.length; i ++)
-		{
-			currentSheet[i] = new TextureRegion(this.spriteSheet,16 * i,16,16,16);
-		}
-		this.walkAnimation = new Animation<TextureRegion>(0.15f ,currentSheet);
-		
-		//WALK BLOCKED ANIMATION
-		currentSheet = new TextureRegion[3];
-		for(int i = 0; i < currentSheet.length; i ++)
-		{
-			currentSheet[i] = new TextureRegion(this.spriteSheet,16 * i,64,16,16);
-		}
-		this.walkBlockedAnimation = new Animation<TextureRegion>(0.15f ,currentSheet);
-		
-		//SETTING ANIMATIONS
+		this.spriteSheet = Media.loadTexture("Actors/hero/guy_sheet.png");
+
+		this.idleAnimation = Media.createAnimation(this.spriteSheet, 0.26f,
+				new Vector2(4,1), new Vector2(0,0),
+				new Vector2(16,16), new Vector2(0,0));
+
+		this.walkAnimation = Media.createAnimation(this.spriteSheet, 0.15f,
+				new Vector2(3,1), new Vector2(0,16),
+				new Vector2(16,16), new Vector2(0,0));
+
+		this.walkBlockedAnimation = Media.createAnimation(this.spriteSheet, 0.15f,
+				new Vector2(3,1), new Vector2(0,64),
+				new Vector2(16,16), new Vector2(0,0));
+
 		this.animations = new Animation[2];
 		this.animations[IDLE] = idleAnimation;
 		this.animations[WALK] = walkAnimation;
@@ -94,13 +78,9 @@ public class Player extends Actor{
 		this.jump = new TextureRegion[2];
 		this.jump[0] = new TextureRegion(this.spriteSheet, 48, 16, 16, 16);
 		this.jump[1] = new TextureRegion(this.spriteSheet, 64, 48, 16, 16);
-		
 		this.dead = new TextureRegion(this.spriteSheet, 64, 0, 16, 16);
-		
 		this.fall = new TextureRegion(this.spriteSheet, 64, 16, 16, 16);
-		
 		this.parachute = new TextureRegion(this.spriteSheet, 48, 48, 16, 16);
-		
 		this.currentFrame = new TextureRegion(this.spriteSheet,0,0,16,16);
 		
 		this.jumpSound = Gdx.audio.newSound(Gdx.files.internal(C.path+"SFX/Jump.wav"));
@@ -122,8 +102,7 @@ public class Player extends Actor{
 		this.respawn = false;
 		this.blocked = false;
 		this.pressingJump = false;
-		this.hp = 6;
-		
+
 		this.jumpCount = 0;
 		this.blockedTime = 0;
 		this.coins = 0;
@@ -372,27 +351,7 @@ public class Player extends Actor{
 		
 		batch.draw(this.currentFrame,this.position.x + offX,this.position.y,0,0,16,16,1,1,angle);
 	}
-	
-	public int getHp()
-	{
-		return hp;
-	}
-	
-	public int getHeartRegion()
-	{
-		if(this.hp % 2 == 0)
-		{
-			if(this.hp == 0) return 2;
-			return 0;
-		}	
-		return 1;
-	}
-	
-	public void changeHp(int value)
-	{
-		this.hp += value;
-	}
-	
+
 	public Rectangle getRect()
 	{
 		this.hitBox.x = this.position.x;
