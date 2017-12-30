@@ -7,8 +7,7 @@ import com.badlogic.gdx.controllers.Controller;
 import com.badlogic.gdx.controllers.Controllers;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.pgsv.game.consts.C;
-import com.pgsv.game.stages.MainMenu;
+import com.pgsv.game.utils.C;
 import com.pgsv.game.stages.TestStage;
 
 public class MyGdxGame extends Game {
@@ -20,7 +19,7 @@ public class MyGdxGame extends Game {
 	{
 		this.batch = new SpriteBatch();
 		
-		Gdx.graphics.setCursor(Gdx.graphics.newCursor(new Pixmap(Gdx.files.internal(C.path + "ui/alpha.png")), 0, 0));
+		Gdx.graphics.setCursor(Gdx.graphics.newCursor(new Pixmap(Gdx.files.internal(C.PATH + "ui/alpha.png")), 0, 0));
 		
 		Controller myController = null;
 		for (Controller controller : Controllers.getControllers()) 
@@ -28,7 +27,7 @@ public class MyGdxGame extends Game {
 			myController = controller;
 			break;
 		}
-		C.in = myController;
+		C.IN = myController;
 		
 		setScreen(new TestStage(this,batch));
 	}

@@ -11,9 +11,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.pgsv.game.MyGdxGame;
-import com.pgsv.game.consts.C;
-
-import javax.swing.JOptionPane;
+import com.pgsv.game.utils.C;
 
 public class MainMenu implements Screen{
 
@@ -60,12 +58,12 @@ public class MainMenu implements Screen{
 		this.camera = new OrthographicCamera();
 		this.camera.setToOrtho(false,256, 144);
 		
-		this.background = new Texture(Gdx.files.internal(C.path + "ui/mainMenuBackground2.png"));
-		this.menuBox = new Texture(Gdx.files.internal(C.path + "ui/board.png"));
-		this.mouseCursor = new Texture(Gdx.files.internal(C.path + "ui/mouseCursor.png"));
-		this.cursor =  new Texture(Gdx.files.internal(C.path + "ui/cursor.png"));
-		this.title =  new Texture(Gdx.files.internal(C.path + "ui/title.png"));
-		this.black = new Texture(Gdx.files.internal(C.path + "ui/black.png"));
+		this.background = new Texture(Gdx.files.internal(C.PATH + "ui/mainMenuBackground2.png"));
+		this.menuBox = new Texture(Gdx.files.internal(C.PATH + "ui/board.png"));
+		this.mouseCursor = new Texture(Gdx.files.internal(C.PATH + "ui/mouseCursor.png"));
+		this.cursor =  new Texture(Gdx.files.internal(C.PATH + "ui/cursor.png"));
+		this.title =  new Texture(Gdx.files.internal(C.PATH + "ui/title.png"));
+		this.black = new Texture(Gdx.files.internal(C.PATH + "ui/black.png"));
 		
 		this.backGroundDelta = 0f;
 		this.speed = 0f;

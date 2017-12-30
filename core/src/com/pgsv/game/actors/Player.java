@@ -13,8 +13,8 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.pgsv.game.consts.C;
-import com.pgsv.game.consts.IpegaPc;
+import com.pgsv.game.utils.C;
+import com.pgsv.game.utils.IpegaPc;
 import com.pgsv.game.stages.Map;
 import com.pgsv.game.utils.Media;
 
@@ -83,9 +83,9 @@ public class Player extends Actor{
 		this.parachute = new TextureRegion(this.spriteSheet, 48, 48, 16, 16);
 		this.currentFrame = new TextureRegion(this.spriteSheet,0,0,16,16);
 		
-		this.jumpSound = Gdx.audio.newSound(Gdx.files.internal(C.path+"SFX/Jump.wav"));
+		this.jumpSound = Gdx.audio.newSound(Gdx.files.internal(C.PATH+"SFX/Jump.wav"));
 		
-		this.in = C.in;
+		this.in = C.IN;
 		
 		this.hitBox = new Rectangle();
 		
