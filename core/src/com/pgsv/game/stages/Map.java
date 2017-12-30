@@ -1,7 +1,6 @@
 package com.pgsv.game.stages;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -10,11 +9,14 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.pgsv.game.utils.C;
+import com.pgsv.game.utils.Input;
 import com.pgsv.game.utils.Media;
 
 import javax.swing.JOptionPane;
 
 public class Map {
+
+    //Todo: Have this guy handle all the actors and itens
 
     private TextureRegion[] tiles;
     private TextureRegion mouseCursor;
@@ -22,7 +24,6 @@ public class Map {
     private Vector2 mouse;
     private String path;
 
-    private boolean isTouched;
     public int[][] map;
     private int[] solids;
     private int ribbon;
@@ -30,7 +31,6 @@ public class Map {
 
     public Map(String path, TextureRegion[] tiles) {
         this.tiles = tiles;
-        this.isTouched = false;
         this.ribbon = 0;
         this.solids = new int[0];
         this.lastTouched = System.currentTimeMillis();
@@ -77,8 +77,8 @@ public class Map {
 
     public void editMode(OrthographicCamera camera) {
 
-        float xDelta  = Gdx.input.getX() / (float)Gdx.graphics.getWidth();
-        float yDelta = (Gdx.graphics.getHeight() - Gdx.input.getY()) / (float) Gdx.graphics.getHeight();
+        float xDelta  = Input.getX() / (float)Gdx.graphics.getWidth();
+        float yDelta = (Gdx.graphics.getHeight() - Input.getY()) / (float) Gdx.graphics.getHeight();
 
         int x = (int) (xDelta * 256 + camera.position.x - 128);
         int y = (int) (yDelta * 144 + camera.position.y - 72);
@@ -88,23 +88,16 @@ public class Map {
 
         this.preview.x = x / 16;
         this.preview.y = y / 16;
-
-        if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) && Gdx.input.isKeyPressed(Input.Keys.C)) {
+        
+        if (Input.isKeyPressed(Input.CONTROL_LEFT) && Input.isKeyPressed(Input.C)) {
             ribbon = getTile(x, y);
         }
 
-        if (Gdx.input.isButtonPressed(1)) {
-            if (!isTouched) {
-                isTouched = true;
-                lastTouched = System.currentTimeMillis();
-                changeTile(x / 16, y / 16);
-            } else if (System.currentTimeMillis() - lastTouched > 200) {
-                isTouched = false;
-            }
-        } else
-            isTouched = false;
-
-        if (Gdx.input.isButtonPressed(0)) {
+        if (Input.isJustTouched(1)) {
+            lastTouched = System.currentTimeMillis();
+            changeTile(x / 16, y / 16);
+        }
+        if (Input.isTouched(0)) {
             changeTile(x / 16, y / 16, ribbon);
         }
 

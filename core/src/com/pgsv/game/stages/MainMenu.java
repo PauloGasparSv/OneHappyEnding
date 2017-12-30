@@ -1,7 +1,6 @@
 package com.pgsv.game.stages;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -15,7 +14,7 @@ import com.pgsv.game.utils.Fader;
 import com.pgsv.game.utils.Input;
 import com.pgsv.game.utils.Media;
 
-public class MainMenu implements Screen {
+public class MainMenu extends Screen {
 
     private MyGdxGame game;
     private OrthographicCamera camera;
@@ -81,10 +80,7 @@ public class MainMenu implements Screen {
     }
 
     public void update(float delta) {
-        Input.listen();
-
-        if(Input.isJustTouched())
-            System.out.println(Input.isJustTouched());
+        super.update(delta);
 
         this.mouse = Input.getMouse();
 
