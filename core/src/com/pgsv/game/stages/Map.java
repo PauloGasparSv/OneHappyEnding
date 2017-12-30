@@ -10,13 +10,16 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.pgsv.game.utils.C;
+import com.pgsv.game.utils.Media;
 
 import javax.swing.JOptionPane;
 
 public class Map {
 
     private TextureRegion[] tiles;
+    private TextureRegion mouseCursor;
     private Vector2 preview;
+    private Vector2 mouse;
     private String path;
 
     private boolean isTouched;
@@ -26,31 +29,16 @@ public class Map {
     private long lastTouched;
 
     public Map(String path, TextureRegion[] tiles) {
-        this.ribbon = 0;
         this.tiles = tiles;
-        this.solids = new int[0];
         this.isTouched = false;
+        this.ribbon = 0;
+        this.solids = new int[0];
         this.lastTouched = System.currentTimeMillis();
         this.path = path + ".broc";
         this.preview = new Vector2();
-
-        FileHandle mapFile = Gdx.files.internal(C.PATH + "maps/" + this.path);
-        String mapText = mapFile.readString();
-
-        String[] lines = mapText.split("\n");
-        String[] temp = lines[0].split("\\s");
-        int w = Integer.parseInt(temp[0]);
-        int h = Integer.parseInt(temp[1]);
-
-        this.map = new int[h][w];
-		
-        for (int line = 1; line < lines.length; line++) {
-            temp = lines[line].split(" ");
-            for (int col = 0; col < w; col++) {
-                this.map[line - 1][col] = Integer.parseInt(temp[col]);
-            }
-        }
-
+        this.mouse = new Vector2();
+        this.mouseCursor = new TextureRegion(Media.loadTexture("ui/mouseCursor.png"));
+        this.loadMap();
     }
 
     public void setSolids(int[] solids) {
@@ -64,9 +52,7 @@ public class Map {
     }
 
     public boolean isSolid(Vector3 tile) {
-        if (tile.z == 0) return false;
-        for (int i : solids) if (tile.z == i) return true;
-        return false;
+        return this.isSolid((int)tile.z);
     }
 
     public void changeTile(int x, int y) {
@@ -90,8 +76,15 @@ public class Map {
     }
 
     public void editMode(OrthographicCamera camera) {
-        int x = (int) (Gdx.input.getX() * 0.2f + camera.position.x - 128);
-        int y = (int) (144 - Gdx.input.getY() * 0.2f + camera.position.y - 72);
+
+        float xDelta  = Gdx.input.getX() / (float)Gdx.graphics.getWidth();
+        float yDelta = (Gdx.graphics.getHeight() - Gdx.input.getY()) / (float) Gdx.graphics.getHeight();
+
+        int x = (int) (xDelta * 256 + camera.position.x - 128);
+        int y = (int) (yDelta * 144 + camera.position.y - 72);
+
+        this.mouse.x = x + 1;
+        this.mouse.y = y - 14;
 
         this.preview.x = x / 16;
         this.preview.y = y / 16;
@@ -118,6 +111,7 @@ public class Map {
     }
 
     public void drawEditMode(SpriteBatch batch) {
+        batch.draw(mouseCursor, mouse.x, mouse.y);
         if (this.ribbon > 0) {
             batch.setColor(new Color(0.2f, 0.2f, 1f, 0.7f));
             batch.draw(this.tiles[this.ribbon - 1], preview.x * 16, preview.y * 16);
@@ -163,7 +157,6 @@ public class Map {
         if (right > map[0].length - 1) right = map[0].length - 1;
         if (bottom < 0) bottom = 0;
         if (top > map.length - 1) top = map.length - 1;
-
         for (int line = bottom; line <= top; line++) {
             for (int col = left; col <= right; col++) {
                 int tile = this.map[line][col];
@@ -183,9 +176,29 @@ public class Map {
             }
         }
 
-        FileHandle file = Gdx.files.absolute("C:/temp/" + path);
+        FileHandle file = Gdx.files.local("maps/" + path);
         file.writeString(mapFile, false);
         JOptionPane.showMessageDialog(null, "MAP SAVED");
+    }
+
+    public void loadMap() {
+        FileHandle mapFile = Gdx.files.internal(C.PATH + "maps/" + this.path);
+        String mapText = mapFile.readString();
+
+        String[] lines = mapText.split("\n");
+        String[] temp = lines[0].split("\\s");
+
+        int w = Integer.parseInt(temp[0]);
+        int h = Integer.parseInt(temp[1]);
+
+        this.map = new int[h][w];
+
+        for (int line = 1; line < lines.length; line++) {
+            temp = lines[line].split(" ");
+            for (int col = 0; col < w; col++) {
+                this.map[line - 1][col] = Integer.parseInt(temp[col]);
+            }
+        }
     }
 
 }
