@@ -72,7 +72,7 @@ public class Fader {
     public void draw(SpriteBatch batch) {
         if (state != NONE) {
             batch.setColor(1, 1, 1, alpha);
-            batch.draw(black, camera.position.x - C.HALF_HEIGHT,
+            batch.draw(black, camera.position.x - C.HALF_WIDTH,
                     camera.position.y - C.HALF_HEIGHT);
             batch.setColor(1, 1, 1, 1);
         }

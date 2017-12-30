@@ -12,36 +12,32 @@ import com.pgsv.game.utils.C;
 
 public class MyGdxGame extends Game {
 
-	private SpriteBatch batch;
-	
-	@Override
-	public void create () 
-	{
-		this.batch = new SpriteBatch();
-		
-		Gdx.graphics.setCursor(Gdx.graphics.newCursor(new Pixmap(Gdx.files.internal(C.PATH + "ui/alpha.png")), 0, 0));
-		
-		Controller myController = null;
-		for (Controller controller : Controllers.getControllers()) 
-		{
-			myController = controller;
-			break;
-		}
-		C.IN = myController;
-		
-		setScreen(new MainMenu(this,batch));
-	}
+    private SpriteBatch batch;
 
-	@Override
-	public void render () 
-	{
-		super.render();
-		if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE))Gdx.app.exit();
-	}
-	
-	@Override
-	public void dispose () 
-	{
-		this.batch.dispose();
-	}
+    @Override
+    public void create() {
+        this.batch = new SpriteBatch();
+
+        Gdx.graphics.setCursor(Gdx.graphics.newCursor(new Pixmap(Gdx.files.internal(C.PATH + "ui/alpha.png")), 0, 0));
+
+        Controller myController = null;
+        for (Controller controller : Controllers.getControllers()) {
+            myController = controller;
+            break;
+        }
+        C.IN = myController;
+        //Todo: Create the select map screen for Edit mode
+        setScreen(new MainMenu(this, batch));
+    }
+
+    @Override
+    public void render() {
+        super.render();
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) Gdx.app.exit();
+    }
+
+    @Override
+    public void dispose() {
+        this.batch.dispose();
+    }
 }

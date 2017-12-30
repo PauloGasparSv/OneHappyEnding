@@ -163,18 +163,28 @@ public class Input {
     public static final int F11 = 254;
     public static final int F12 = 255;
 
-    public static boolean mousePressed = false;
-    public static boolean mouseWasPressed = false;
+    public static boolean mouseLeftPressed = false;
+    public static boolean mouseLeftWasPressed = false;
+    public static boolean mouseRightPressed = false;
+    public static boolean mouseRightWasPressed = false;
     private static Vector2 mouse = new Vector2(0,0);
 
     public static void listen(){
-        if(Gdx.input.isTouched()) {
-            mouseWasPressed = mousePressed;
-            mousePressed = true;
+        if(Gdx.input.isButtonPressed(0)) {
+            mouseLeftWasPressed = mouseLeftPressed;
+            mouseLeftPressed = true;
         }
         else {
-            mousePressed = false;
-            mouseWasPressed = false;
+            mouseLeftPressed = false;
+            mouseLeftWasPressed = false;
+        }
+        if(Gdx.input.isButtonPressed(1)) {
+            mouseRightWasPressed = mouseRightPressed;
+            mouseRightPressed = true;
+        }
+        else {
+            mouseRightPressed = false;
+            mouseRightWasPressed = false;
         }
         mouse = calculateMouse();
     }
@@ -188,11 +198,17 @@ public class Input {
     }
 
     public static boolean isTouched(){
-        return mousePressed;
+        return isTouched(0);
     }
 
-    public static boolean isJustTouched(){
-        return mousePressed && !mouseWasPressed;
+    public static boolean isTouched(int wich){
+        if(wich == 0) return mouseLeftPressed;
+        return mouseRightPressed;
+    }
+
+    public static boolean isJustTouched(int wich){
+        if(wich == 0) return mouseLeftPressed && !mouseLeftWasPressed;
+        return mouseRightPressed && !mouseRightWasPressed;
     }
 
     public static float getX(){

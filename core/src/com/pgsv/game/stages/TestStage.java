@@ -2,7 +2,6 @@ package com.pgsv.game.stages;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
@@ -22,7 +21,7 @@ import com.pgsv.game.utils.Text;
 
 import javax.swing.JOptionPane;
 
-public class TestStage implements Screen {
+public class TestStage extends Screen {
     private final int GAME = 0, TILEMAP = 1, ITENS = 3, BADDIES = 4;
 
     private MyGdxGame game;
@@ -171,6 +170,7 @@ public class TestStage implements Screen {
     }
 
     public void update(float delta) {
+        super.update(delta);
         delta *= C.TIME;
 
         if (this.firstFade > 0)
