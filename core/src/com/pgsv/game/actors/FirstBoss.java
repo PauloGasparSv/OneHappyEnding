@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.pgsv.game.consts.C;
+import com.pgsv.game.utils.C;
 import com.pgsv.game.stages.Map;
 
 public class FirstBoss extends Actor
@@ -100,7 +100,7 @@ public class FirstBoss extends Actor
 	
 	public void update(float delta)
 	{
-		if(C.debug) return;
+		if(C.DEBUG) return;
 
 		animationDelta += delta;
 		

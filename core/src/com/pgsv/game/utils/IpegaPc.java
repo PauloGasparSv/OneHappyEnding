@@ -1,4 +1,4 @@
-package com.pgsv.game.consts;
+package com.pgsv.game.utils;
 
 public class IpegaPc 
 {

@@ -11,7 +11,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.pgsv.game.consts.C;
+import com.pgsv.game.utils.C;
 import com.pgsv.game.utils.Media;
 
 import java.util.LinkedList;
@@ -144,7 +144,7 @@ public class CoinManager {
 	}
 	
 	public void loadCoins(String path) {
-		FileHandle coinFile = Gdx.files.internal(C.path + "maps/" + path);
+		FileHandle coinFile = Gdx.files.internal(C.PATH + "maps/" + path);
 		String coinText = coinFile.readString();
 		
 		String [] lines = coinText.split("\n");

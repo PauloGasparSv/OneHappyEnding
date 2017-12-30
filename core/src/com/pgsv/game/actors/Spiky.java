@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.pgsv.game.consts.C;
+import com.pgsv.game.utils.C;
 import com.pgsv.game.stages.Map;
 
 public class Spiky extends Actor{
@@ -97,7 +97,7 @@ public class Spiky extends Actor{
 		
 		float distX = this.position.x - this.camera.position.x;
 		ignoreMe = distX > 180 || distX < -180;
-		if(ignoreMe || isDead() || C.debug) return;
+		if(ignoreMe || isDead() || C.DEBUG) return;
 
 		
 		if(seenPlayer == -1)
