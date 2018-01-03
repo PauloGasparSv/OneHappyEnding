@@ -11,7 +11,7 @@ public class DesktopLauncher {
 		config.resizable = false;
 		config.width = 3 * (1280 / 4);
 		config.height = 3 * (720 / 4);
-		config.fullscreen = true;
+		config.fullscreen = false;
 		new LwjglApplication(new MyGdxGame(), config);
 	}
 }
@@ -19,5 +19,5 @@ public class DesktopLauncher {
 //CREDIT
 //ART: GrafxKid http://grafxkid.tumblr.com/
 //FONT: GravityGames https://opengameart.org/users/gravitygames
-//SFX: 8-bit Platformer SFX commissioned by Mark McCorkle for OpenGameArt.org ( http://opengameart.org )
+//Sfx: 8-bit Platformer Sfx commissioned by Mark McCorkle for OpenGameArt.org ( http://opengameart.org )
 //Avgvst - Dispersion Found: t4ngr4m https://opengameart.org/users/t4ngr4m

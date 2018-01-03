@@ -1,6 +1,7 @@
 package com.pgsv.game.utils;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -46,6 +47,13 @@ public class Media {
         return frames;
     }
 
-    //Todo: Add file handling methods
+    public static void saveFile(String path, String content){
+        FileHandle file = Gdx.files.local(C.PATH + path);
+        file.writeString(content, false);
+    }
+
+    public static String loadFile(String path){
+        return Gdx.files.internal(C.PATH + path).readString();
+    }
 
 }

@@ -2,7 +2,7 @@ package com.pgsv.game;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
+import com.pgsv.game.utils.Input;
 import com.badlogic.gdx.controllers.Controller;
 import com.badlogic.gdx.controllers.Controllers;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -33,7 +33,7 @@ public class MyGdxGame extends Game {
     @Override
     public void render() {
         super.render();
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) Gdx.app.exit();
+        if (Input.isKeyJustPressed(Input.ESCAPE)) Gdx.app.exit();
     }
 
     @Override

@@ -1,11 +1,16 @@
-package com.pgsv.game.stages;
+import com.pgsv.game.utils.Input;
+import com.pgsv.game.utils.Sfx;00                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                package com.pgsv.game.stages;
 
 import com.pgsv.game.utils.Input;
+import com.pgsv.game.utils.Sfx;
 
 public class Screen implements com.badlogic.gdx.Screen {
 
+    public Sfx sfx;
+
     public void update(float delta){
         Input.listen();
+        sfx.update(delta);
     }
 
     @Override

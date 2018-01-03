@@ -108,7 +108,7 @@ public class TestStage extends Screen {
         this.theme.setVolume(0.25f);
         this.theme.setLooping(true);
 
-        this.coinSound = Gdx.audio.newSound(Gdx.files.internal(C.PATH + "SFX/Pickup_Coin.wav"));
+        this.coinSound = Gdx.audio.newSound(Gdx.files.internal(C.PATH + "Sfx/Pickup_Coin.wav"));
 
         this.water = new Texture[2];
         this.water[0] = new Texture(Gdx.files.internal(C.PATH + "stages/1/back_river_1.png"));
