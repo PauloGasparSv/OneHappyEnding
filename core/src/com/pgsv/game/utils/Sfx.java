@@ -61,10 +61,10 @@ public class Sfx {
     public void changeState(int state) {
         if (state == NONE) {
             alpha = 0f;
-            state = NONE;
+            this.state = NONE;
         } else if (state == BLACK) {
             alpha = 1f;
-            state = BLACK;
+            this.state = BLACK;
         } else if (state == FADE_IN) {
             fadeIn();
         } else if (state == FADE_OUT) {

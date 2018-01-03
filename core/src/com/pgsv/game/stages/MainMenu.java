@@ -19,7 +19,6 @@ public class MainMenu extends Screen {
     private MyGdxGame game;
     private OrthographicCamera camera;
     private SpriteBatch batch;
-    private Sfx fader;
 
     private Animation<TextureRegion> titleAnimation;
 
@@ -50,7 +49,7 @@ public class MainMenu extends Screen {
 
         this.camera = new OrthographicCamera();
         this.camera.setToOrtho(false, 256, 144);
-        this.fader = new Sfx(camera);
+        setSfx(camera, batch);
 
         this.background = new Texture(Gdx.files.internal(C.PATH + "ui/mainMenuBackground2.png"));
         this.menuBox = Media.loadTexture("ui/board.png");
@@ -116,15 +115,13 @@ public class MainMenu extends Screen {
                 if (Input.isKeyJustPressed(Input.ENTER) ||
                         Input.isKeyJustPressed(Input.Z) ||
                         Input.isKeyJustPressed(Input.SPACE)) {
-                    if (this.current != 1)
-                        chosen = true;
+                    chosen = true;
                 }
                 for (int i = 0; i < 3; i++) {
                     if (new Rectangle(mouse.x, mouse.y, 2, 2).overlaps(options[i])) {
                         this.current = i;
                         if (Input.isTouched()) {
-                            if (this.current != 1)
-                                chosen = true;
+                            chosen = true;
                         }
                     }
                 }
@@ -135,10 +132,9 @@ public class MainMenu extends Screen {
 
 
             if (this.titleAnimation.isAnimationFinished(this.titleDelta) &&
-                    fader.getState() == Sfx.NONE)
-                fader.fadeOut();
-
-            if (this.fader.getState() == Sfx.BLACK) {
+                    sfx.getState() == Sfx.NONE)
+                sfx.fadeOut();
+            if (this.sfx.getState() == Sfx.BLACK) {
                 this.choose();
             }
         }
@@ -149,8 +145,9 @@ public class MainMenu extends Screen {
         dispose();
         if (current == 0)
             game.setScreen(new TestStage(game, batch));
-        else if(current == 1)
+        else if(current == 1) {
             game.setScreen(new SelectMap(game, batch));
+        }
         if (current == 2)
             Gdx.app.exit();
 
@@ -180,45 +177,6 @@ public class MainMenu extends Screen {
 
         this.batch.draw(mouseCursor, mouse.x - 1, mouse.y - 12);
 
-        if (this.chosen)
-            this.fader.draw(batch);
+
     }
-
-    @Override
-    public void dispose() {
-        this.background.dispose();
-    }
-
-    @Override
-    public void render(float delta) {
-        update(delta);
-        this.camera.update();
-
-        this.batch.begin();
-        batch.setProjectionMatrix(camera.combined);
-        draw();
-        this.batch.end();
-    }
-
-
-    @Override
-    public void show() {
-    }
-
-    @Override
-    public void resize(int width, int height) {
-    }
-
-    @Override
-    public void pause() {
-    }
-
-    @Override
-    public void resume() {
-    }
-
-    @Override
-    public void hide() {
-    }
-
 }

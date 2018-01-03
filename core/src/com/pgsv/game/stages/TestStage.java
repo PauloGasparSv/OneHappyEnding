@@ -73,6 +73,8 @@ public class TestStage extends Screen {
         this.camera = new OrthographicCamera();
         this.camera.setToOrtho(false, 256, 144);
 
+        setSfx(camera,batch);
+
         this.text = new Text();
 
         this.tiles = Media.loadTexture("stages/1/tiles.png");
