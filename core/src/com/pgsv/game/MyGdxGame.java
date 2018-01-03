@@ -34,6 +34,7 @@ public class MyGdxGame extends Game {
     public void render() {
         super.render();
         if (Input.isKeyJustPressed(Input.ESCAPE)) Gdx.app.exit();
+
     }
 
     @Override

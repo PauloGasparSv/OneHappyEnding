@@ -17,6 +17,8 @@ public class Map {
     public static int GAME = 0, EDIT = 1;
     //Todo: Have this guy handle all the actors and itens
 
+    //Todo: Have this guy handle all the actors and itens
+
     private TextureRegion[] tiles;
     private TextureRegion mouseCursor;
     private Vector2 preview;
@@ -76,6 +78,7 @@ public class Map {
     public void editMode(OrthographicCamera camera) {
 
         float xDelta = Input.getX() / (float) Gdx.graphics.getWidth();
+
         float yDelta = (Gdx.graphics.getHeight() - Input.getY()) / (float) Gdx.graphics.getHeight();
 
         int x = (int) (xDelta * C.WIDTH + camera.position.x - C.HALF_WIDTH);
