@@ -1,7 +1,6 @@
 package com.pgsv.game.stages;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -15,7 +14,7 @@ import com.pgsv.game.utils.Media;
 import javax.swing.JOptionPane;
 
 public class Map {
-
+    public static int GAME = 0, EDIT = 1;
     //Todo: Have this guy handle all the actors and itens
 
     private TextureRegion[] tiles;
@@ -25,15 +24,14 @@ public class Map {
     private String path;
 
     public int[][] map;
+    public int state;
     private int[] solids;
     private int ribbon;
-    private long lastTouched;
 
     public Map(String path, TextureRegion[] tiles) {
         this.tiles = tiles;
         this.ribbon = 0;
         this.solids = new int[0];
-        this.lastTouched = System.currentTimeMillis();
         this.path = path + ".broc";
         this.preview = new Vector2();
         this.mouse = new Vector2();
@@ -52,7 +50,7 @@ public class Map {
     }
 
     public boolean isSolid(Vector3 tile) {
-        return this.isSolid((int)tile.z);
+        return this.isSolid((int) tile.z);
     }
 
     public void changeTile(int x, int y) {
@@ -77,24 +75,23 @@ public class Map {
 
     public void editMode(OrthographicCamera camera) {
 
-        float xDelta  = Input.getX() / (float)Gdx.graphics.getWidth();
+        float xDelta = Input.getX() / (float) Gdx.graphics.getWidth();
         float yDelta = (Gdx.graphics.getHeight() - Input.getY()) / (float) Gdx.graphics.getHeight();
 
-        int x = (int) (xDelta * 256 + camera.position.x - 128);
-        int y = (int) (yDelta * 144 + camera.position.y - 72);
+        int x = (int) (xDelta * C.WIDTH + camera.position.x - C.HALF_WIDTH);
+        int y = (int) (yDelta * C.HEIGHT + camera.position.y - C.HALF_WIDTH);
 
         this.mouse.x = x + 1;
         this.mouse.y = y - 14;
 
         this.preview.x = x / 16;
         this.preview.y = y / 16;
-        
+
         if (Input.isKeyPressed(Input.CONTROL_LEFT) && Input.isKeyPressed(Input.C)) {
             ribbon = getTile(x, y);
         }
 
         if (Input.isJustTouched(1)) {
-            lastTouched = System.currentTimeMillis();
             changeTile(x / 16, y / 16);
         }
         if (Input.isTouched(0)) {
@@ -136,20 +133,19 @@ public class Map {
     }
 
     public void draw(OrthographicCamera camera, SpriteBatch batch) {
-        float w = 256;
-        float h = 144;
-        float cameraX = camera.position.x - w / 2f;
-        float cameraY = camera.position.y - h / 2f;
+        float cameraX = camera.position.x - C.HALF_WIDTH;
+        float cameraY = camera.position.y - C.HALF_HEIGHT;
 
         int left = (int) (cameraX / 16f);
-        int right = (int) ((cameraX + w) / 16f) + 1;
+        int right = (int) ((cameraX + C.WIDTH) / 16f) + 1;
         int bottom = (int) (cameraY / 16f);
-        int top = (int) ((cameraY + h) / 16f) + 1;
+        int top = (int) ((cameraY + C.HEIGHT) / 16f) + 1;
 
         if (left < 0) left = 0;
         if (right > map[0].length - 1) right = map[0].length - 1;
         if (bottom < 0) bottom = 0;
         if (top > map.length - 1) top = map.length - 1;
+
         for (int line = bottom; line <= top; line++) {
             for (int col = left; col <= right; col++) {
                 int tile = this.map[line][col];
@@ -164,32 +160,26 @@ public class Map {
 
         for (int line = 0; line < map.length; line++) {
             mapFile += "\n";
-            for (int col = 0; col < map[0].length; col++) {
+            for (int col = 0; col < map[0].length; col++)
                 mapFile += map[line][col] + " ";
-            }
         }
 
-        FileHandle file = Gdx.files.local("maps/" + path);
-        file.writeString(mapFile, false);
-        JOptionPane.showMessageDialog(null, "MAP SAVED");
+        Media.saveFile("maps/" + path, mapFile);
+        JOptionPane.showMessageDialog(null, "Map saved");
     }
 
     public void loadMap() {
-        FileHandle mapFile = Gdx.files.internal(C.PATH + "maps/" + this.path);
-        String mapText = mapFile.readString();
+        String mapText  = Media.loadFile("maps/" + this.path);
 
         String[] lines = mapText.split("\n");
-        String[] temp = lines[0].split("\\s");
+        String[] currentLine = lines[0].split("\\s");
 
-        int w = Integer.parseInt(temp[0]);
-        int h = Integer.parseInt(temp[1]);
-
-        this.map = new int[h][w];
+        this.map = new int[Integer.parseInt(currentLine[1])][Integer.parseInt(currentLine[0])];
 
         for (int line = 1; line < lines.length; line++) {
-            temp = lines[line].split(" ");
-            for (int col = 0; col < w; col++) {
-                this.map[line - 1][col] = Integer.parseInt(temp[col]);
+            currentLine = lines[line].split(" ");
+            for (int col = 0; col < lines[0].length(); col++) {
+                this.map[line - 1][col] = Integer.parseInt(currentLine[col]);
             }
         }
     }

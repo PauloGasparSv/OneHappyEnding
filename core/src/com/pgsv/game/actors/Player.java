@@ -83,7 +83,7 @@ public class Player extends Actor{
 		this.parachute = new TextureRegion(this.spriteSheet, 48, 48, 16, 16);
 		this.currentFrame = new TextureRegion(this.spriteSheet,0,0,16,16);
 		
-		this.jumpSound = Gdx.audio.newSound(Gdx.files.internal(C.PATH+"SFX/Jump.wav"));
+		this.jumpSound = Gdx.audio.newSound(Gdx.files.internal(C.PATH+"Sfx/Jump.wav"));
 		
 		this.in = C.IN;
 		

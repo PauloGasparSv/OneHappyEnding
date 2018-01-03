@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
-public class Fader {
+public class Sfx {
 
     public static final int NONE = 0, BLACK = 1, FADE_IN = 2, FADE_OUT = 3;
 
@@ -17,12 +17,19 @@ public class Fader {
 
     private int state;
 
-    public Fader(OrthographicCamera camera) {
+    private boolean shaking;
+
+    public Sfx(OrthographicCamera camera) {
         this.black = new TextureRegion(Media.loadTexture("ui/black.png"));
         this.state = NONE;
         this.alpha = 0f;
         this.camera = camera;
         this.speed = 1;
+        this.shaking = false;
+    }
+
+    public void shake(){
+        shaking = true;
     }
 
     public void setCamera(OrthographicCamera camera) {
@@ -40,24 +47,24 @@ public class Fader {
     }
 
     public void update(float delta) {
-        if (this.state == FADE_IN) {
-            this.alpha -= delta * speed;
-            if (this.alpha <= 0)
+        if (state == FADE_IN) {
+            alpha -= delta * speed;
+            if (alpha <= 0)
                 changeState(NONE);
-        } else if (this.state == FADE_OUT) {
-            this.alpha += delta * speed;
-            if (this.alpha >= 1)
+        } else if (state == FADE_OUT) {
+            alpha += delta * speed;
+            if (alpha >= 1)
                 changeState(BLACK);
         }
     }
 
     public void changeState(int state) {
         if (state == NONE) {
-            this.alpha = 0f;
-            this.state = NONE;
+            alpha = 0f;
+            state = NONE;
         } else if (state == BLACK) {
-            this.alpha = 1f;
-            this.state = BLACK;
+            alpha = 1f;
+            state = BLACK;
         } else if (state == FADE_IN) {
             fadeIn();
         } else if (state == FADE_OUT) {

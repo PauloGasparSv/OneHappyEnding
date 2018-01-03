@@ -10,7 +10,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.pgsv.game.MyGdxGame;
 import com.pgsv.game.utils.C;
-import com.pgsv.game.utils.Fader;
+import com.pgsv.game.utils.Sfx;
 import com.pgsv.game.utils.Input;
 import com.pgsv.game.utils.Media;
 
@@ -19,7 +19,7 @@ public class MainMenu extends Screen {
     private MyGdxGame game;
     private OrthographicCamera camera;
     private SpriteBatch batch;
-    private Fader fader;
+    private Sfx fader;
 
     private Animation<TextureRegion> titleAnimation;
 
@@ -50,7 +50,7 @@ public class MainMenu extends Screen {
 
         this.camera = new OrthographicCamera();
         this.camera.setToOrtho(false, 256, 144);
-        this.fader = new Fader(camera);
+        this.fader = new Sfx(camera);
 
         this.background = new Texture(Gdx.files.internal(C.PATH + "ui/mainMenuBackground2.png"));
         this.menuBox = Media.loadTexture("ui/board.png");
@@ -133,13 +133,12 @@ public class MainMenu extends Screen {
         } else {
             this.titleDelta += delta;
 
-            this.fader.update(delta);
 
             if (this.titleAnimation.isAnimationFinished(this.titleDelta) &&
-                    fader.getState() == Fader.NONE)
+                    fader.getState() == Sfx.NONE)
                 fader.fadeOut();
 
-            if (this.fader.getState() == Fader.BLACK) {
+            if (this.fader.getState() == Sfx.BLACK) {
                 this.choose();
             }
         }
@@ -147,10 +146,12 @@ public class MainMenu extends Screen {
     }
 
     public void choose() {
-        this.dispose();
-        if (this.current == 0)
-            this.game.setScreen(new TestStage(this.game, batch));
-        if (this.current == 2)
+        dispose();
+        if (current == 0)
+            game.setScreen(new TestStage(game, batch));
+        else if(current == 1)
+            game.setScreen(new SelectMap(game, batch));
+        if (current == 2)
             Gdx.app.exit();
 
     }
