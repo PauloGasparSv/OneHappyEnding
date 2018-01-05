@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 
 public class Media {
 
@@ -54,6 +55,16 @@ public class Media {
 
     public static String loadFile(String path){
         return Gdx.files.internal(C.PATH + path).readString();
+    }
+
+    public static LinkedList<String> getDirectories(String path){
+        LinkedList<String> dirs = new LinkedList<String>();
+        FileHandle dirHandle = Gdx.files.internal(C.PATH + path);
+        for (FileHandle entry: dirHandle.list()) {
+            if(entry.isDirectory())
+                dirs.add(entry.name());
+        }
+        return dirs;
     }
 
 

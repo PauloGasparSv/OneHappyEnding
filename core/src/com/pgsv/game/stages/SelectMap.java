@@ -10,6 +10,8 @@ import com.pgsv.game.utils.C;
 import com.pgsv.game.utils.Input;
 import com.pgsv.game.utils.Media;
 
+import java.util.LinkedList;
+
 public class SelectMap extends Screen{
 
     private MyGdxGame game;
@@ -38,6 +40,11 @@ public class SelectMap extends Screen{
         scrollMid = Media.loadTexture("ui/ScrollMiddle.png");
         scrollTitle = Media.loadTexture("ui/SelectMap.png");
         cursor = Media.loadTexture("ui/mouseCursor.png");
+
+        LinkedList<String> dirs = Media.getDirectories("EditMaps");
+        for(String i: dirs){
+            System.out.println(i);
+        }
 
         numRows = 1;
     }
