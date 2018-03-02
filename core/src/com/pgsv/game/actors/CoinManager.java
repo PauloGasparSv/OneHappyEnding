@@ -144,7 +144,7 @@ public class CoinManager {
 	}
 	
 	public void loadCoins(String path) {
-		FileHandle coinFile = Gdx.files.internal(C.PATH + "maps/" + path);
+		FileHandle coinFile = Gdx.files.internal(C.ROOT + "maps/" + path);
 		String coinText = coinFile.readString();
 		
 		String [] lines = coinText.split("\n");

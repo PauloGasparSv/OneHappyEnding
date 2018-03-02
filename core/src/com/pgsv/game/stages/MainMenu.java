@@ -1,35 +1,23 @@
 package com.pgsv.game.stages;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.pgsv.game.MyGdxGame;
 import com.pgsv.game.utils.C;
-import com.pgsv.game.utils.Sfx;
 import com.pgsv.game.utils.Input;
 import com.pgsv.game.utils.Media;
+import com.pgsv.game.utils.Vfx;
 
-public class MainMenu extends Screen {
-
-    private MyGdxGame game;
-    private OrthographicCamera camera;
-    private SpriteBatch batch;
+public class MainMenu extends Screen
+{
 
     private Animation<TextureRegion> titleAnimation;
 
     private Texture background;
     private Texture menuBox;
-    private Texture mouseCursor;
     private Texture cursor;
-
-    private Rectangle[] options;
-
-    private Vector2 mouse;
 
     private float backGroundDelta;
     private float menuOff;
@@ -41,60 +29,45 @@ public class MainMenu extends Screen {
 
     private boolean chosen;
 
-    public MainMenu(MyGdxGame game, SpriteBatch batch) {
+    public MainMenu()
+    {
         super();
 
-        this.game = game;
-        this.batch = batch;
+        background = Media.loadTexture(C.ROOT + "ui/mainMenuBackground2.png");
+        menuBox = Media.loadTexture("ui/board.png");
+        cursor = Media.loadTexture("ui/cursor.png");
+        titleAnimation = Media.createAnimation(Media.loadTexture("ui/title.png"),
+                0.1f,new Vector2(1, 11), Vector2.Zero, new Vector2(101, 12), Vector2.Zero);
 
-        this.camera = new OrthographicCamera();
-        this.camera.setToOrtho(false, 256, 144);
-        setSfx(camera, batch);
 
-        this.background = new Texture(Gdx.files.internal(C.PATH + "ui/mainMenuBackground2.png"));
-        this.menuBox = Media.loadTexture("ui/board.png");
-        this.mouseCursor = Media.loadTexture("ui/mouseCursor.png");
-        this.cursor = Media.loadTexture("ui/cursor.png");
+        backGroundDelta = 0f;
+        menuOff = 220f;
+        speed = 0f;
+        current = 0;
+        menu = 0;
+        chosen = false;
 
-        this.mouse = new Vector2();
-
-        this.backGroundDelta = 0f;
-        this.menuOff = 220f;
-        this.speed = 0f;
-
-        this.current = 0;
-        this.menu = 0;
-
-        this.chosen = false;
-
-        this.titleAnimation = Media.createAnimation(
-                Media.loadTexture("ui/title.png"), 0.1f,
-                new Vector2(1, 11), Vector2.Zero,
-                new Vector2(101, 12), Vector2.Zero);
-
-        this.options = new Rectangle[3];
-        this.options[0] = new Rectangle(95, 88, 72, 8);
-        this.options[1] = new Rectangle(95, 69, 72, 8);
-        this.options[2] = new Rectangle(95, 50, 72, 8);
     }
 
-    public void update(float delta) {
-        super.update(delta);
+    public void update(float delta)
+    {
+        if (!this.chosen)
+        {
+            if(this.menu == 0 && this.backGroundDelta > -40f)
+			{
+				this.speed += delta * 30f;
+				this.backGroundDelta -= delta * this.speed;
+				if (this.backGroundDelta <= -40f)
+				{
+					this.backGroundDelta = -40f;
+					this.menu = 1;
+				}
+			}
 
-        this.mouse = Input.getMouse();
-
-        if (!this.chosen) {
-            if (this.backGroundDelta > -40f) {
-                this.speed += delta * 30f;
-                this.backGroundDelta -= delta * this.speed;
-                if (this.backGroundDelta <= -40f) {
-                    this.backGroundDelta = -40f;
-                    this.menu = 1;
-                }
-            }
-
-            if (this.menu == 1) {
-                if (this.menuOff > 0) {
+            if (this.menu == 1)
+            {
+                if (this.menuOff > 0)
+                {
                     this.menuOff -= delta * 60f;
                     if (this.menuOff < 0) {
                         this.menuOff = 0;
@@ -103,66 +76,70 @@ public class MainMenu extends Screen {
                 }
             }
 
-            if (this.menu == 2) {
-                if (Input.isKeyJustPressed(Input.UP)) {
+            if (this.menu == 2)
+            {
+                if (Input.isKeyJustPressed(Input.UP))
+                {
                     this.current--;
                     if (this.current < 0) this.current = 0;
-                } else if (Input.isKeyJustPressed(Input.DOWN)) {
+                }
+                else if (Input.isKeyJustPressed(Input.DOWN))
+                {
                     this.current++;
                     if (this.current > 2) this.current = 2;
                 }
 
-                if (Input.isKeyJustPressed(Input.ENTER) ||
-                        Input.isKeyJustPressed(Input.Z) ||
-                        Input.isKeyJustPressed(Input.SPACE)) {
+                if (Input.isKeyJustPressed(Input.ENTER) || Input.isKeyJustPressed(Input.Z) || Input.isKeyJustPressed(Input.SPACE))
                     chosen = true;
-                }
-                for (int i = 0; i < 3; i++) {
-                    if (new Rectangle(mouse.x, mouse.y, 2, 2).overlaps(options[i])) {
-                        this.current = i;
-                        if (Input.isTouched()) {
-                            chosen = true;
-                        }
-                    }
-                }
-
             }
-        } else {
+
+            if(this.menu < 2 && Input.isKeyJustPressed(Input.SPACE))
+            {
+                this.backGroundDelta = -40f;
+                this.menuOff = 0;
+                this.menu = 2;
+            }
+
+        }
+        else
+        {
             this.titleDelta += delta;
 
-
-            if (this.titleAnimation.isAnimationFinished(this.titleDelta) &&
-                    sfx.getState() == Sfx.NONE)
-                sfx.fadeOut();
-            if (this.sfx.getState() == Sfx.BLACK) {
+            if (this.titleAnimation.isAnimationFinished(this.titleDelta) && vfx.getState() == Vfx.NONE)
+                vfx.fadeOut();
+            if (this.vfx.getState() == Vfx.BLACK)
                 this.choose();
-            }
+
         }
 
     }
 
-    public void choose() {
+    public void choose()
+    {
         dispose();
+
         if (current == 0)
-            game.setScreen(new TestStage(game, batch));
-        else if(current == 1) {
-            game.setScreen(new SelectMap(game, batch));
-        }
+            game.setScreen(new TestStage());
+        else if(current == 1)
+            game.setScreen(new SelectMap());
         if (current == 2)
             Gdx.app.exit();
-
     }
 
-    public void draw() {
+    public void draw()
+    {
         batch.draw(background, 0, this.backGroundDelta);
 
-        if (this.menu > 0) {
+        if (this.menu > 0)
+        {
             batch.draw(menuBox, 66 + menuOff, 40);
             batch.draw(this.titleAnimation.getKeyFrame(titleDelta, false), 73 + menuOff, 108);
         }
 
-        if (this.menu == 2) {
-            switch (this.current) {
+        if (this.menu == 2)
+        {
+            switch (this.current)
+            {
                 case 0:
                     batch.draw(cursor, 74, 88);
                     break;
@@ -174,9 +151,6 @@ public class MainMenu extends Screen {
                     break;
             }
         }
-
-        this.batch.draw(mouseCursor, mouse.x - 1, mouse.y - 12);
-
 
     }
 }

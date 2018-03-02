@@ -1,24 +1,31 @@
 package com.pgsv.game.stages;
+
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.pgsv.game.MyGdxGame;
+import com.pgsv.game.utils.C;
 import com.pgsv.game.utils.Input;
-import com.pgsv.game.utils.Sfx;
+import com.pgsv.game.utils.Vfx;
 
 public class Screen implements com.badlogic.gdx.Screen {
 
-    public Sfx sfx;
+    public Vfx vfx;
     public OrthographicCamera camera;
     public SpriteBatch batch;
+    public MyGdxGame game;
 
-    public void setSfx(OrthographicCamera camera, SpriteBatch batch){
-        sfx = new Sfx(camera);
-        this.camera = camera;
-        this.batch = batch;
+    public Screen()
+    {
+        game = C.game;
+        batch = C.batch;
+
+        camera = new OrthographicCamera();
+        camera.setToOrtho(false, C.WIDTH, C.HEIGHT);
+
+        vfx = new Vfx(camera);
     }
 
     public void update(float delta) {
-        Input.listen();
-        sfx.update(delta);
 
     }
 
@@ -32,15 +39,19 @@ public class Screen implements com.badlogic.gdx.Screen {
     }
 
     @Override
-    public void render(float delta) {
-        update(delta);
-        this.camera.update();
+    public void render(float delta)
+    {
+        Input.listen();
+        vfx.update(delta);
 
-        this.batch.begin();
+        update(delta);
+        camera.update();
+
+        batch.begin();
         batch.setProjectionMatrix(camera.combined);
         draw();
-        this.sfx.draw(batch);
-        this.batch.end();
+        vfx.draw(batch);
+        batch.end();
     }
 
     @Override

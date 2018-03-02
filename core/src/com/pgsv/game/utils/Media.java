@@ -17,7 +17,7 @@ public class Media {
 
     public static Texture loadTexture(String path) {
         if (textures.containsKey(path)) return textures.get(path);
-        Texture asset = new Texture(Gdx.files.internal(C.PATH + path));
+        Texture asset = new Texture(Gdx.files.internal(C.ROOT + path));
         textures.put(path, asset);
         return asset;
     }
@@ -36,11 +36,10 @@ public class Media {
         int counter = 0;
         for (int row = 0; row < numFrames.y; row++) {
             for (int col = 0; col < numFrames.x; col++) {
-                frames[counter] = new TextureRegion(texture,
-                        (int) start.x + ((int) dimension.x + (int) offset.x) * col,
-                        (int) start.y + ((int) dimension.y + (int) offset.y) * row,
-                        (int) dimension.x, (int) dimension.y);
-
+                frames[counter] = getFrame(texture,
+                    start.x + (dimension.x +  offset.x) * col,
+                    start.y + ( dimension.y + offset.y) * row,
+                     dimension.x, dimension.y);
                 counter++;
             }
         }
@@ -48,18 +47,27 @@ public class Media {
         return frames;
     }
 
+    public static TextureRegion getFrame(String path,float x, float y, float w, float h){
+        return getFrame(Media.loadTexture(path), x, y, w, h);
+    }
+
+    public static TextureRegion getFrame(Texture texture, float x, float y, float w, float h){
+        return new TextureRegion(texture,
+                (int) x, (int) y, (int) w, (int) h);
+    }
+
     public static void saveFile(String path, String content){
-        FileHandle file = Gdx.files.local(C.PATH + path);
+        FileHandle file = Gdx.files.local(C.ROOT + path);
         file.writeString(content, false);
     }
 
     public static String loadFile(String path){
-        return Gdx.files.internal(C.PATH + path).readString();
+        return Gdx.files.internal(C.ROOT + path).readString();
     }
 
     public static LinkedList<String> getDirectories(String path){
         LinkedList<String> dirs = new LinkedList<String>();
-        FileHandle dirHandle = Gdx.files.internal(C.PATH + path);
+        FileHandle dirHandle = Gdx.files.internal(C.ROOT + path);
         for (FileHandle entry: dirHandle.list()) {
             if(entry.isDirectory())
                 dirs.add(entry.name());
@@ -67,5 +75,13 @@ public class Media {
         return dirs;
     }
 
-
+    public static LinkedList<String> getFiles(String path){
+        LinkedList<String> dirs = new LinkedList<String>();
+        FileHandle dirHandle = Gdx.files.internal(C.ROOT + path);
+        for (FileHandle entry: dirHandle.list()) {
+            if(!entry.isDirectory())
+                dirs.add(entry.name());
+        }
+        return dirs;
+    }
 }

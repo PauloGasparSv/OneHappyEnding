@@ -24,7 +24,6 @@ public class EditMode extends  Screen{
         this.camera.setToOrtho(false, C.WIDTH, C.HEIGHT);
         this.camera.position.x = C.HALF_WIDTH;
         this.camera.position.y = C.HALF_HEIGHT;
-        setSfx(camera, batch);
 
         player = Media.loadTexture("Actors/hero/guy_sheet.png");
     }

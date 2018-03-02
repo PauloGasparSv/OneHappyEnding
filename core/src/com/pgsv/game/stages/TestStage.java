@@ -64,16 +64,8 @@ public class TestStage extends Screen {
     private float endStageAlpha;
 
 
-    public TestStage(MyGdxGame game, SpriteBatch batch) {
+    public TestStage() {
         super();
-        this.game = game;
-
-        this.batch = batch;
-
-        this.camera = new OrthographicCamera();
-        this.camera.setToOrtho(false, 256, 144);
-
-        setSfx(camera,batch);
 
         this.text = new Text();
 
@@ -105,16 +97,16 @@ public class TestStage extends Screen {
         princessAnimation = new Animation<TextureRegion>(0.24f, framesPrincesa);
         princessDelta = 0f;
 
-        this.theme = Gdx.audio.newMusic(Gdx.files.internal(C.PATH + "Music/The Adventure Begins 8-bit remix.ogg"));
+        this.theme = Gdx.audio.newMusic(Gdx.files.internal(C.ROOT + "Music/The Adventure Begins 8-bit remix.ogg"));
         //this.theme.play();
         this.theme.setVolume(0.25f);
         this.theme.setLooping(true);
 
-        this.coinSound = Gdx.audio.newSound(Gdx.files.internal(C.PATH + "Sfx/Pickup_Coin.wav"));
+        this.coinSound = Gdx.audio.newSound(Gdx.files.internal(C.ROOT + "Sfx/Pickup_Coin.wav"));
 
         this.water = new Texture[2];
-        this.water[0] = new Texture(Gdx.files.internal(C.PATH + "stages/1/back_river_1.png"));
-        this.water[1] = new Texture(Gdx.files.internal(C.PATH + "stages/1/back_river_2.png"));
+        this.water[0] = new Texture(Gdx.files.internal(C.ROOT + "stages/1/back_river_1.png"));
+        this.water[1] = new Texture(Gdx.files.internal(C.ROOT + "stages/1/back_river_2.png"));
 
         this.cloud = new TextureRegion(tiles, 32, 0, 16, 16);
         this.cloudX = new float[3];

@@ -220,7 +220,7 @@ public class BaddieBuilder {
 
 
     public void loadBaddies(String path) {
-        FileHandle badsFile = Gdx.files.internal(C.PATH + "maps/" + path);
+        FileHandle badsFile = Gdx.files.internal(C.ROOT + "maps/" + path);
         String badsText = badsFile.readString();
 
         String[] lines = badsText.split("\n");
