@@ -1,0 +1,10 @@
+{
+  "name": "onehappyending",
+  "version": "1.0.0",
+  "description": "a game about life",
+  "scripts": {
+    "start": "gradlew desktop:run"
+  },
+  "author": "Paulo Vale",
+  "license": "ISC"
+}
