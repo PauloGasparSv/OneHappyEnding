@@ -21,6 +21,9 @@ public class Stage implements Screen
     public void render(float delta)
     {
         update(delta);
+        
+        if(camera.position.x < 120f) camera.position.x = 120f;
+        if(camera.position.y < 67.5f) camera.position.y = 67.5f;
         camera.update();
 
         Gdx.gl.glClear(GL30.GL_COLOR_BUFFER_BIT);

@@ -1,13 +1,13 @@
 package com.pvale.actors;
 
-import javax.lang.model.util.ElementScanner6;
-
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.pvale.utils.In;
 import com.pvale.utils.Media;
+import com.pvale.maps.Map;
 
 public class Player extends Actor
 {
@@ -19,7 +19,9 @@ public class Player extends Actor
     private Animation<TextureRegion> currentAnimation;
     
     private float currentDelta;
-    private float speed = 40f;
+    private float speed = 60f;
+
+    private int jumpCounter = 0;
 
     public Player()
     {
@@ -35,11 +37,54 @@ public class Player extends Actor
     }
 
     @Override
-    public void update(float delta)
+    public void update(OrthographicCamera camera, Map map, float delta)
     {
         currentDelta += delta;
-        
         controls(delta);
+
+        if(facingRight) 
+        {
+            if(map.isSolid(x + 13, y + 8))
+            {
+                x -= delta * speed;
+            }
+        }
+        else
+        {
+            if(map.isSolid(x + 3, y + 8))
+            {
+                x += delta * speed;
+            }
+        }
+
+        if(map.isSolid(x + 4, y) || map.isSolid(x + 12, y))
+        {
+            if(!grounded && ac >= 0)
+            {
+                int row = (int) ( y / 16f );
+                y = 16 * row + 14;
+                grounded = true;
+                jumpCounter = 0;
+                ac = 0;
+            }
+        }
+        else
+        {
+            grounded = false;
+            if(jumpCounter == 0)
+                jumpCounter = 1;
+        }
+        
+        if(!grounded)
+        {
+            ac += delta * gravity;
+            y -= ac * delta;
+        }
+        // if(In.up()) y += speed * delta;
+        // if(In.down()) y -= speed * delta;
+
+        System.out.println(map.getTile(x,y));
+
     }
 
     public void controls(float delta)
@@ -62,9 +107,18 @@ public class Player extends Actor
         }
         else
         {
-            if(myState != State.Iddle)
+            if(myState == State.Walk)
                 setState(State.Iddle);
         }
+
+        if(In.justJumped() && (grounded || jumpCounter < 2))
+        {
+            grounded = false;
+            y += 4;
+            ac = -130f + jumpCounter * 30f;
+            jumpCounter ++;
+        }
+
     }
 
     public void setState(State state)
@@ -85,8 +139,8 @@ public class Player extends Actor
 
         if((facingRight && currentFrame.isFlipX()) || !facingRight && !currentFrame.isFlipX())
             currentFrame.flip(true, false);
-        
-        batch.draw(currentFrame, x, 0);
+            
+        batch.draw(currentFrame, x, y);
     }
     
 }

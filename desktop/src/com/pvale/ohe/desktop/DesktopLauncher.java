@@ -18,3 +18,9 @@ public class DesktopLauncher
 		new LwjglApplication(new MyGame(), config);
 	}
 }
+
+//CREDIT
+//ART: GrafxKid http://grafxkid.tumblr.com/
+//FONT: GravityGames https://opengameart.org/users/gravitygames
+//Sfx: 8-bit Platformer Sfx commissioned by Mark McCorkle for OpenGameArt.org ( http://opengameart.org )
+//Avgvst - Dispersion Found: t4ngr4m https://opengameart.org/users/t4ngr4m
