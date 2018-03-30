@@ -11,14 +11,18 @@ import com.pvale.maps.Map;
 
 public class Player extends Actor
 {
+
     private Texture spriteSheet;
     private TextureRegion currentFrame;
 
     private Animation<TextureRegion> iddleAnimation;
     private Animation<TextureRegion> walkAnimation;
     private Animation<TextureRegion> jumpAnimation;
+    private Animation<TextureRegion> pushingAnimation;
     private Animation<TextureRegion> currentAnimation;
     
+    private boolean pushing = false;
+
     private float currentDelta;
     private float speed = 60f;
 
@@ -36,16 +40,20 @@ public class Player extends Actor
             Media.getSheetFrames(spriteSheet, 0, 16, 1, 3, 16,16));
         jumpAnimation = new Animation<TextureRegion>(0.1f, 
             Media.getSheetFrames(spriteSheet, 48, 16, 1, 2, 16,16));
+        pushingAnimation = new Animation<TextureRegion>(0.2f, 
+            Media.getSheetFrames(spriteSheet, 0, 64, 1, 3, 16,16));
 
         setState(State.Iddle);
         currentFrame = (TextureRegion) currentAnimation.getKeyFrame(0);
+
     }
 
     @Override
     public void update(OrthographicCamera camera, Map map, float delta)
     {
+        pushing = false;
         currentDelta += delta;
-        
+
         if(hasControls) controls(delta);
 
         if(facingRight) 
@@ -53,6 +61,7 @@ public class Player extends Actor
             if(map.isSolid(x + 13, y + 8))
             {
                 x -= delta * speed;
+                pushing = true;
             }
         }
         else
@@ -60,6 +69,7 @@ public class Player extends Actor
             if(map.isSolid(x + 3, y + 8))
             {
                 x += delta * speed;
+                pushing = true;
             }
         }
 
@@ -147,15 +157,20 @@ public class Player extends Actor
     @Override 
     public void draw(SpriteBatch batch)
     {
-        if(myState != State.Jump)
+        if(pushing && myState == State.Walk)
+            currentFrame = (TextureRegion) pushingAnimation.getKeyFrame(currentDelta, true);
+        else if(myState != State.Jump)
             currentFrame = (TextureRegion) currentAnimation.getKeyFrame(currentDelta, true);
         else
             currentFrame = (TextureRegion) jumpAnimation.getKeyFrame(ac > 20 ? 1 : 0, false);
 
         if((facingRight && currentFrame.isFlipX()) || !facingRight && !currentFrame.isFlipX())
             currentFrame.flip(true, false);
-            
-        batch.draw(currentFrame, x, y);
+        if(!pushing)
+            batch.draw(currentFrame, x, y);
+        else
+            batch.draw(currentFrame, x + (facingRight ? -2 : 2), y);
+
     }
     
 }
