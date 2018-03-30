@@ -36,6 +36,11 @@ public class SimpleStage extends Stage
             camera.position.x = player.x - 30f;
         else if(camera.position.x - player.x > 50f)
             camera.position.x = player.x + 50f;
+
+        if(player.y - camera.position.y > 16f)
+            camera.position.y = player.y - 16f;
+        else if(camera.position.y - player.y > 20f)
+            camera.position.y = player.y + 20f;
         
     }
 
@@ -44,5 +49,11 @@ public class SimpleStage extends Stage
     {
         map.draw(camera, batch);
         player.draw(batch);
+    }
+
+    @Override
+    public void dispose()
+    {
+        map.dispose();
     }
 }

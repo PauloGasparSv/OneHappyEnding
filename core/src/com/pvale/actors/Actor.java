@@ -12,6 +12,7 @@ public class Actor
         Walk,
         Run,
         Hit,
+        Jump,
         Attack,
         Death,
         Dead

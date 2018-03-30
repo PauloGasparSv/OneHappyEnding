@@ -16,12 +16,15 @@ public class Player extends Actor
 
     private Animation<TextureRegion> iddleAnimation;
     private Animation<TextureRegion> walkAnimation;
+    private Animation<TextureRegion> jumpAnimation;
     private Animation<TextureRegion> currentAnimation;
     
     private float currentDelta;
     private float speed = 60f;
 
     private int jumpCounter = 0;
+
+    public boolean hasControls = true;
 
     public Player()
     {
@@ -31,6 +34,8 @@ public class Player extends Actor
             Media.getSheetFrames(spriteSheet, 0, 0, 1, 4, 16,16));
         walkAnimation = new Animation<TextureRegion>(0.2f, 
             Media.getSheetFrames(spriteSheet, 0, 16, 1, 3, 16,16));
+        jumpAnimation = new Animation<TextureRegion>(0.1f, 
+            Media.getSheetFrames(spriteSheet, 48, 16, 1, 2, 16,16));
 
         setState(State.Iddle);
         currentFrame = (TextureRegion) currentAnimation.getKeyFrame(0);
@@ -40,7 +45,8 @@ public class Player extends Actor
     public void update(OrthographicCamera camera, Map map, float delta)
     {
         currentDelta += delta;
-        controls(delta);
+        
+        if(hasControls) controls(delta);
 
         if(facingRight) 
         {
@@ -59,17 +65,11 @@ public class Player extends Actor
 
         if(map.isSolid(x + 4, y) || map.isSolid(x + 12, y))
         {
-            if(!grounded && ac >= 0)
-            {
-                int row = (int) ( y / 16f );
-                y = 16 * row + 14;
-                grounded = true;
-                jumpCounter = 0;
-                ac = 0;
-            }
+            groundMe();
         }
-        else
+        else if(grounded)
         {
+            setState(State.Jump);
             grounded = false;
             if(jumpCounter == 0)
                 jumpCounter = 1;
@@ -78,13 +78,23 @@ public class Player extends Actor
         if(!grounded)
         {
             ac += delta * gravity;
+            if(ac > 200) ac = 200;
             y -= ac * delta;
         }
-        // if(In.up()) y += speed * delta;
-        // if(In.down()) y -= speed * delta;
+    }
 
-        System.out.println(map.getTile(x,y));
-
+    public void groundMe()
+    {
+        if(!grounded && ac >= 0)
+        {
+            int row = (int) ( y / 16f );
+            y = 16 * row + 14;
+            grounded = true;
+            jumpCounter = 0;
+            ac = 0;
+            if(myState == State.Jump)
+                setState(State.Iddle);
+        }
     }
 
     public void controls(float delta)
@@ -113,6 +123,8 @@ public class Player extends Actor
 
         if(In.justJumped() && (grounded || jumpCounter < 2))
         {
+            setState(State.Jump);
+
             grounded = false;
             y += 4;
             ac = -130f + jumpCounter * 30f;
@@ -135,7 +147,10 @@ public class Player extends Actor
     @Override 
     public void draw(SpriteBatch batch)
     {
-        currentFrame = (TextureRegion) currentAnimation.getKeyFrame(currentDelta, true);
+        if(myState != State.Jump)
+            currentFrame = (TextureRegion) currentAnimation.getKeyFrame(currentDelta, true);
+        else
+            currentFrame = (TextureRegion) jumpAnimation.getKeyFrame(ac > 20 ? 1 : 0, false);
 
         if((facingRight && currentFrame.isFlipX()) || !facingRight && !currentFrame.isFlipX())
             currentFrame.flip(true, false);

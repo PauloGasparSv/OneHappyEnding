@@ -11,6 +11,9 @@ import com.pvale.utils.Media;
 
 public class Map
 {
+    private Texture tileSheet;
+    private Texture background;
+
     public TextureRegion [] tiles;
 
     public int [][] map;
@@ -52,11 +55,12 @@ public class Map
             map = new int[16][32];
         }
 
-        Texture tileSheet = Media.loadTexture(texturePath);
+        tileSheet = Media.loadTexture(texturePath);
 
         if(texturePath.equals("Screens/1/tiles.png"))
         {
             tiles = Media.getSheetFrames(tileSheet, 11, 3, 16, 16);
+            background = Media.loadTexture("Screens/1/back.png");
             solidTiles = new int[12];
             for(int i = 0; i < solidTiles.length; i++)
                 solidTiles[i] = 10 + i;
@@ -101,6 +105,11 @@ public class Map
 
         int tileX = (int) (x / 16f);
         int tileY = (int) (y / 16f);
+
+        if(tileX < 0) tileX = 0;
+        else if(tileX > map[0].length - 1)tileX = map[0].length - 1;
+        if(tileY < 0) tileY = 0;
+        else if(tileY > map.length - 1)tileY = map.length - 1;
 
         if(In.copy())
         {
@@ -170,6 +179,13 @@ public class Map
         if(endX > map[0].length - 1) endX = map[0].length - 1;
         if(endY > map.length - 1) endY = map.length - 1;
 
+        float position  =  cameraX * 0.5f;
+        int times = (int) (position / 320f);
+        position %= 320f;
+        
+        batch.draw(background, position + 320f * times * 2, cameraY * 0.8f);
+        batch.draw(background, position +  320f + 320f * (times * 2), cameraY * 0.8f);
+        
         for(int row = startY; row < endY; row ++)
         {
             for(int col = startX; col < endX; col ++)
@@ -181,5 +197,9 @@ public class Map
         }
     }
 
+    public void dispose()
+    {
+        tileSheet.dispose();
+    }
 
 }
