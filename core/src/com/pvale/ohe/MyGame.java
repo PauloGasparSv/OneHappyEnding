@@ -19,8 +19,9 @@ public class MyGame extends Game
     {
         prefs = Gdx.app.getPreferences("onehappyending");
 
-        //Static setups
         In.loadController();
+        In.loadPreferences();
+
         Stage.batch = new SpriteBatch();
         Stage.camera = new OrthographicCamera(240, 135);
         
@@ -31,7 +32,6 @@ public class MyGame extends Game
     public void render()
     {
         super.render();
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) Gdx.app.exit();
     }
 
     @Override

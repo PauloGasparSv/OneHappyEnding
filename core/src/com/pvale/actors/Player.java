@@ -18,9 +18,12 @@ public class Player extends Actor
     private Animation<TextureRegion> walkAnimation;
     private Animation<TextureRegion> jumpAnimation;
     private Animation<TextureRegion> pushingAnimation;
+    private Animation<TextureRegion> fingerAnimation;
     private Animation<TextureRegion> currentAnimation;
+    private Animation<TextureRegion> attackAnimation;
     
     private boolean pushing = false;
+    private boolean lookingUp = false;
     public boolean hasControls = true;
 
     private int jumpCounter = 0;
@@ -33,13 +36,17 @@ public class Player extends Actor
         spriteSheet = Media.loadTexture("Actors/hero/guy_sheet.png");
 
         iddleAnimation = new Animation<TextureRegion>(0.5f, 
-            Media.getSheetFrames(spriteSheet, 0, 0, 1, 4, 16,16));
+            Media.getSheetFrames(spriteSheet, 0, 0, 1, 4, 16, 16));
         walkAnimation = new Animation<TextureRegion>(0.2f, 
-            Media.getSheetFrames(spriteSheet, 0, 16, 1, 3, 16,16));
+            Media.getSheetFrames(spriteSheet, 0, 16, 1, 3, 16, 16));
         jumpAnimation = new Animation<TextureRegion>(0.1f, 
-            Media.getSheetFrames(spriteSheet, 48, 16, 1, 2, 16,16));
+            Media.getSheetFrames(spriteSheet, 48, 16, 1, 2, 16, 16));
         pushingAnimation = new Animation<TextureRegion>(0.2f, 
-            Media.getSheetFrames(spriteSheet, 0, 64, 1, 3, 16,16));
+            Media.getSheetFrames(spriteSheet, 0, 64, 1, 3, 16, 16));
+        fingerAnimation = new Animation<TextureRegion>(0.2f, 
+            Media.getSheetFrames(spriteSheet, 32, 80, 1, 1, 16, 16));
+        attackAnimation = new Animation<TextureRegion>(0.068f, 
+            Media.getSheetFrames(spriteSheet, 0, 32, 1, 5, 16, 16));
 
         setState(State.Iddle);
         currentFrame = (TextureRegion) currentAnimation.getKeyFrame(0);
@@ -49,11 +56,14 @@ public class Player extends Actor
     @Override
     public void update(OrthographicCamera camera, Map map, float delta)
     {
-        //In.getControllerInfo();
+        In.getControllerInfo();
         pushing = false;
         currentDelta += delta;
 
         if(hasControls) controls(delta);
+
+        if(myState == State.Attack && attackAnimation.isAnimationFinished(currentDelta))
+            setState(State.Iddle);
 
         if(facingRight) 
         {
@@ -110,27 +120,32 @@ public class Player extends Actor
 
     public void controls(float delta)
     {
-        if(In.right())
+        if(myState != State.Attack)
         {
-            if(myState == State.Iddle)
-                setState(State.Walk);
-            
-            facingRight = true;
-            x += delta * speed;
+            if(In.right())
+            {
+                if(myState == State.Iddle)
+                    setState(State.Walk);
+                
+                facingRight = true;
+                x += delta * speed;
+            }
+            else if(In.left())
+            {
+                if(myState == State.Iddle)
+                    setState(State.Walk);
+                
+                facingRight = false;
+                x -= delta * speed;
+            }
+            else
+            {
+                if(myState == State.Walk)
+                    setState(State.Iddle);
+            }
         }
-        else if(In.left())
-        {
-            if(myState == State.Iddle)
-                setState(State.Walk);
-            
-            facingRight = false;
-            x -= delta * speed;
-        }
-        else
-        {
-            if(myState == State.Walk)
-                setState(State.Iddle);
-        }
+
+        lookingUp = In.up();
 
         if(In.justJumped() && (grounded || jumpCounter < 2))
         {
@@ -140,6 +155,12 @@ public class Player extends Actor
             y += 4;
             ac = -130f + jumpCounter * 30f;
             jumpCounter ++;
+        }
+
+        if(In.justAttacked() && grounded && myState != State.Jump && myState != State.Attack)
+        {
+            setState(State.Attack);
+            
         }
 
     }
@@ -153,6 +174,8 @@ public class Player extends Actor
             currentAnimation = iddleAnimation;
         else if(myState == State.Walk)
             currentAnimation = walkAnimation;
+        else if(myState == State.Attack)
+            currentAnimation = attackAnimation;
     }
 
     @Override 
@@ -160,6 +183,8 @@ public class Player extends Actor
     {
         if(pushing && myState == State.Walk)
             currentFrame = (TextureRegion) pushingAnimation.getKeyFrame(currentDelta, true);
+        else if(lookingUp && myState == State.Iddle)
+            currentFrame = (TextureRegion) fingerAnimation.getKeyFrame(currentDelta, false);
         else if(myState != State.Jump)
             currentFrame = (TextureRegion) currentAnimation.getKeyFrame(currentDelta, true);
         else
