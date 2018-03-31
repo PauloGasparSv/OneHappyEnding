@@ -11,7 +11,6 @@ import com.pvale.maps.Map;
 
 public class Player extends Actor
 {
-
     private Texture spriteSheet;
     private TextureRegion currentFrame;
 
@@ -22,13 +21,12 @@ public class Player extends Actor
     private Animation<TextureRegion> currentAnimation;
     
     private boolean pushing = false;
-
-    private float currentDelta;
-    private float speed = 60f;
+    public boolean hasControls = true;
 
     private int jumpCounter = 0;
-
-    public boolean hasControls = true;
+    
+    private float currentDelta;
+    private float speed = 60f;
 
     public Player()
     {
@@ -51,6 +49,7 @@ public class Player extends Actor
     @Override
     public void update(OrthographicCamera camera, Map map, float delta)
     {
+        //In.getControllerInfo();
         pushing = false;
         currentDelta += delta;
 
@@ -91,6 +90,8 @@ public class Player extends Actor
             if(ac > 200) ac = 200;
             y -= ac * delta;
         }
+
+
     }
 
     public void groundMe()

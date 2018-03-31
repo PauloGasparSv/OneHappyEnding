@@ -32,16 +32,19 @@ public class SimpleStage extends Stage
 
         player.update(camera, map, delta);
 
+        cameraControl();
+    }
+
+    public void cameraControl()
+    {
         if(player.x - camera.position.x > 30f)
             camera.position.x = player.x - 30f;
         else if(camera.position.x - player.x > 50f)
             camera.position.x = player.x + 50f;
-
         if(player.y - camera.position.y > 16f)
             camera.position.y = player.y - 16f;
         else if(camera.position.y - player.y > 20f)
             camera.position.y = player.y + 20f;
-        
     }
 
     @Override

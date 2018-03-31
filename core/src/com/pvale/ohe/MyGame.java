@@ -5,20 +5,26 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.pvale.screens.SimpleStage;
 import com.pvale.screens.Stage;
+import com.pvale.utils.In;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Gdx;
 
 public class MyGame extends Game 
 {
+    public static Preferences prefs;
+
     @Override
     public void create()
     {
+        prefs = Gdx.app.getPreferences("onehappyending");
+
+        //Static setups
+        In.loadController();
         Stage.batch = new SpriteBatch();
         Stage.camera = new OrthographicCamera(240, 135);
         
-        SimpleStage stage = new SimpleStage();
-        
-        setScreen(stage);
+        setScreen(new SimpleStage());
     }
 
     @Override
