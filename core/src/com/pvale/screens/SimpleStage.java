@@ -40,7 +40,7 @@ public class SimpleStage extends Stage
             player.update(camera, map, delta);
 
         if(In.justAttacked())
-            shake();
+            setFade(FadeState.FADEOUT);
 
 
         cameraControl();

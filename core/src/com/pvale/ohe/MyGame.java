@@ -1,8 +1,6 @@
 package com.pvale.ohe;
 
 import com.badlogic.gdx.Game;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.pvale.screens.SimpleStage;
 import com.pvale.screens.Stage;
 import com.pvale.utils.In;
@@ -23,10 +21,8 @@ public class MyGame extends Game
         In.loadPreferences();
 
         Text.init();
+        Stage.init();
 
-        Stage.batch = new SpriteBatch();
-        Stage.camera = new OrthographicCamera(240, 135);
-        
         setScreen(new SimpleStage());
     }
 

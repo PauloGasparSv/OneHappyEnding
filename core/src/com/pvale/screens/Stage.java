@@ -1,28 +1,50 @@
 package com.pvale.screens;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.pvale.utils.In;
+import com.pvale.utils.Media;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL30;
 
 public class Stage implements Screen
 {
+
+    public static enum FadeState
+    {
+        NONE,
+        BLACK,
+        FADEIN,
+        FADEOUT
+    }
+
+    public static OrthographicCamera camera;   
     public static SpriteBatch batch;
-    public static OrthographicCamera camera;
+    
+    private static Texture fade;
+    private static Texture black;
 
     private static boolean shaking = false;
 
     private static int shakeState = 0;
+    
+    private static FadeState fadeState = FadeState.FADEIN;
 
     private static float cameraAngle = 0f;
     private static float shakeAngle = 0f;
+    private static float fadeDelta = 1f;
 
-    public Stage()
+    public static void init()
     {
+        batch = new SpriteBatch();
+        camera = new OrthographicCamera(240, 135);
         camera.position.x = 120f;
         camera.position.y = 67.5f;
+
+        fade = Media.loadTexture("misc/fade.png");
+        black = Media.loadTexture("misc/blackBackground.png");
     }
 
     @Override
@@ -59,10 +81,33 @@ public class Stage implements Screen
         camera.update();
 
         Gdx.gl.glClear(GL30.GL_COLOR_BUFFER_BIT);
+        
         batch.begin();
         batch.setProjectionMatrix(camera.combined);
 
         draw();
+
+        if(fadeState == FadeState.BLACK)
+        {
+            batch.draw(black, camera.position.x  - 120f , camera.position.y - 67.5f, 240, 135);
+        }
+        else if(fadeState != FadeState.NONE)
+        {
+            if(fadeState == FadeState.FADEIN)
+                fadeDelta += delta * 22f;
+            else 
+                fadeDelta -= delta * 52f;
+
+            if(fadeDelta > 50f) fadeState = FadeState.NONE;
+            if(fadeDelta < 1f) 
+            {
+                fadeDelta = 1f;
+                fadeState = FadeState.BLACK;
+            }
+            
+            batch.draw(fade, camera.position.x  - 120f , camera.position.y - 67.5f,
+                128f, 61f, 240f, 135f, fadeDelta, fadeDelta, 0f, 0, 0, 240, 135, false, false);
+        }
 
         batch.end();
     }
@@ -97,6 +142,20 @@ public class Stage implements Screen
         shakeState = 0;
         shakeAngle = 0f;
         camera.zoom = 0.97f;
+    }
+
+    public static void setFade(FadeState state)
+    {
+        if(state == fadeState) return;
+        fadeState = state;
+        if(fadeState == FadeState.FADEIN)
+        {
+            fadeDelta = 1f;
+        }
+        else if(fadeState == FadeState.FADEOUT)
+        {
+            fadeDelta = 50f;
+        }
     }
 
     public static float getAngle()
