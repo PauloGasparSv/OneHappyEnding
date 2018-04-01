@@ -33,7 +33,7 @@ public class Player extends Actor
 
     public Player()
     {
-        spriteSheet = Media.loadTexture("Actors/hero/guy_sheet.png");
+        spriteSheet = Media.loadTexture("actors/hero/guy_sheet.png");
 
         iddleAnimation = new Animation<TextureRegion>(0.5f, 
             Media.getSheetFrames(spriteSheet, 0, 0, 1, 4, 16, 16));

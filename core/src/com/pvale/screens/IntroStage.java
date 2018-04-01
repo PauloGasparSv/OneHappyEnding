@@ -1,20 +1,19 @@
 package com.pvale.screens;
 
-import com.pvale.screens.SimpleStage;
 import com.pvale.utils.In;
 import com.pvale.utils.Text;
 import com.pvale.actors.Actor;
 import com.pvale.actors.Player;
 import com.pvale.maps.Map; 
 
-public class SimpleStage extends Stage
+public class IntroStage extends Stage
 {
     private Player player;
     private Map map;
 
     private boolean editMode = false;
 
-    public SimpleStage()
+    public IntroStage()
     {
         super();
 
@@ -38,10 +37,6 @@ public class SimpleStage extends Stage
             editMode = !editMode;
         if(!editMode)
             player.update(camera, map, delta);
-
-        if(In.justAttacked())
-            shake();
-
 
         cameraControl();
     }

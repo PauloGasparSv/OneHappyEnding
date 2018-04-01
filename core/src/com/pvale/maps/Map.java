@@ -28,7 +28,7 @@ public class Map
     {
         this.mapName = mapName;
 
-        FileHandle handle = Gdx.files.internal("Maps/" + mapName);
+        FileHandle handle = Gdx.files.internal("maps/" + mapName);
         if(handle.exists())
         {
             String file = handle.readString();
@@ -51,16 +51,16 @@ public class Map
         }
         else
         {
-            texturePath = "Screens/1/tiles.png";
+            texturePath = "screens/1/tiles.png";
             map = new int[16][32];
         }
 
         tileSheet = Media.loadTexture(texturePath);
 
-        if(texturePath.equals("Screens/1/tiles.png"))
+        if(texturePath.equals("screens/1/tiles.png"))
         {
             tiles = Media.getSheetFrames(tileSheet, 11, 3, 16, 16);
-            background = Media.loadTexture("Screens/1/back.png");
+            background = Media.loadTexture("screens/1/back.png");
             solidTiles = new int[12];
             for(int i = 0; i < solidTiles.length; i++)
                 solidTiles[i] = 10 + i;

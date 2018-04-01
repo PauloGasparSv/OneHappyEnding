@@ -15,7 +15,7 @@ public class Text
 
     public static void init()
     {
-        charSet = Media.loadTexture("Misc/boxyFontRedux.png");
+        charSet = Media.loadTexture("misc/boxyFontRedux.png");
         chars = Media.getSheetFrames(charSet, 5, 13, 9, 9);
 
         charMap = new HashMap<Integer,Character>();
