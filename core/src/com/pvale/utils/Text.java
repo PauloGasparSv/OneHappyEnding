@@ -75,7 +75,7 @@ public class Text
         addChar('~', 61);
     }
 
-    public static void draw(SpriteBatch batch, String text, float x, float y)
+    public static void draw(SpriteBatch batch, String text, float x, float y, float size)
     {
         int len = text.length();
         float curr = 0f;
@@ -84,13 +84,13 @@ public class Text
             char c = text.charAt(i);
             if(c == ' ')
             { 
-                curr += 3f;
+                curr += 3f * size;
                 continue;
             }
             int position = (Integer) charMap.get(c);
-            curr += 4.9f;
+            curr += 5f * size;
             if(position > chars.length - 1) continue;
-            batch.draw(chars[position], x + curr, y, 6, 6);       
+            batch.draw(chars[position], x + curr, y, 6.5f * size, 6.5f * size);       
         }
     }
 

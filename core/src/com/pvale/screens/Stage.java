@@ -3,6 +3,7 @@ package com.pvale.screens;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.pvale.utils.Camera;
 import com.pvale.utils.In;
 import com.pvale.utils.Media;
 import com.badlogic.gdx.Screen;
@@ -30,7 +31,7 @@ public class Stage implements Screen
 
     private static int shakeState = 0;
     
-    private static FadeState fadeState = FadeState.FADEIN;
+    public static FadeState fadeState = FadeState.FADEIN;
 
     private static float cameraAngle = 0f;
     private static float shakeAngle = 0f;
@@ -89,7 +90,7 @@ public class Stage implements Screen
 
         if(fadeState == FadeState.BLACK)
         {
-            batch.draw(black, camera.position.x  - 120f , camera.position.y - 67.5f, 240, 135);
+            batch.draw(black, Camera.getX() , Camera.getY(), 240, 135);
         }
         else if(fadeState != FadeState.NONE)
         {
@@ -103,9 +104,9 @@ public class Stage implements Screen
             {
                 fadeDelta = 1f;
                 fadeState = FadeState.BLACK;
-            }
+            }   
             
-            batch.draw(fade, camera.position.x  - 120f , camera.position.y - 67.5f,
+            batch.draw(fade, Camera.getX() , Camera.getY() ,
                 128f, 61f, 240f, 135f, fadeDelta, fadeDelta, 0f, 0, 0, 240, 135, false, false);
         }
 

@@ -1,6 +1,9 @@
 package com.pvale.ohe;
 
+import java.rmi.server.SocketSecurityException;
+
 import com.badlogic.gdx.Game;
+import com.pvale.screens.IntroStage;
 import com.pvale.screens.SimpleStage;
 import com.pvale.screens.Stage;
 import com.pvale.utils.In;
@@ -12,10 +15,14 @@ public class MyGame extends Game
 {
     public static Preferences prefs;
 
+    public static MyGame game;
+
     @Override
     public void create()
     {
         prefs = Gdx.app.getPreferences("onehappyending");
+
+        game = this;
 
         In.loadController();
         In.loadPreferences();
@@ -23,7 +30,7 @@ public class MyGame extends Game
         Text.init();
         Stage.init();
 
-        setScreen(new SimpleStage());
+        setScreen(new IntroStage());
     }
 
     @Override

@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.pvale.utils.Camera;
 import com.pvale.utils.In;
 import com.pvale.utils.Media;
 
@@ -51,8 +52,10 @@ public class Map
         }
         else
         {
-            texturePath = "screens/1/tiles.png";
-            map = new int[16][32];
+            texturePath = "screens/castle/tiles.png";
+            map = new int[14][20];
+       
+            solidTiles = new int[0];            
         }
 
         tileSheet = Media.loadTexture(texturePath);
@@ -65,9 +68,10 @@ public class Map
             for(int i = 0; i < solidTiles.length; i++)
                 solidTiles[i] = 10 + i;
         }
-        else
+        else if(texturePath.equals("screens/castle/tiles.png"))
         {
-            tiles = Media.getSheetFrames(tileSheet, 11, 3, 16, 16);
+            tiles = Media.getSheetFrames(tileSheet, 8, 3, 16, 16);
+            background = Media.loadTexture("screens/castle/back.png");
             solidTiles = new int[0];
         }
 
@@ -100,8 +104,8 @@ public class Map
 
     public void editMap(OrthographicCamera camera, float delta)
     {
-        float x = camera.position.x  + In.getX() - 120.0f;
-        float y = camera.position.y + In.getY() - 67.5f;
+        float x = Camera.getX()  + In.getX();
+        float y = Camera.getY() + In.getY();
 
         int tileX = (int) (x / 16f);
         int tileY = (int) (y / 16f);
@@ -168,8 +172,8 @@ public class Map
 
     public void draw(OrthographicCamera camera, SpriteBatch batch)
     {
-        float cameraX = camera.position.x - 120.0f;
-        float cameraY = camera.position.y - 67.5f;
+        float cameraX = Camera.getX();
+        float cameraY = Camera.getY();
         
         int startX = (int) (cameraX / 16f);
         int startY = (int) (cameraY / 16f);
@@ -183,8 +187,8 @@ public class Map
         int times = (int) (position / 320f);
         position %= 320f;
         
-        batch.draw(background, position + 320f * times * 2, cameraY * 0.8f);
-        batch.draw(background, position +  320f + 320f * (times * 2), cameraY * 0.8f);
+        batch.draw(background, position + 320f * times / 0.5f, cameraY * 0.8f);
+        batch.draw(background, position +  320f + 320f * (times / 0.5f), cameraY * 0.8f);
         
         for(int row = startY; row < endY; row ++)
         {

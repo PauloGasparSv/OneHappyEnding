@@ -2,7 +2,6 @@ package com.pvale.screens;
 
 import com.pvale.screens.SimpleStage;
 import com.pvale.utils.In;
-import com.pvale.utils.Text;
 import com.pvale.actors.Actor;
 import com.pvale.actors.Player;
 import com.pvale.maps.Map; 
@@ -27,6 +26,7 @@ public class SimpleStage extends Stage
         player.y = 64f;
         player.grounded = false;
   
+        setFade(FadeState.FADEIN);
     }
     
     @Override
@@ -38,9 +38,6 @@ public class SimpleStage extends Stage
             editMode = !editMode;
         if(!editMode)
             player.update(camera, map, delta);
-
-        if(In.justAttacked())
-            setFade(FadeState.FADEOUT);
 
 
         cameraControl();
@@ -64,7 +61,6 @@ public class SimpleStage extends Stage
         map.draw(camera, batch);
         player.draw(batch);
 
-        Text.draw(batch, "HELLO I AM STUPED", 48, 128);
     }
 
     @Override
