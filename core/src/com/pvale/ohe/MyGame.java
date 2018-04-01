@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.pvale.screens.SimpleStage;
 import com.pvale.screens.Stage;
 import com.pvale.utils.In;
-import com.badlogic.gdx.Input;
+import com.pvale.utils.Text;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Gdx;
 
@@ -21,6 +21,8 @@ public class MyGame extends Game
 
         In.loadController();
         In.loadPreferences();
+
+        Text.init();
 
         Stage.batch = new SpriteBatch();
         Stage.camera = new OrthographicCamera(240, 135);

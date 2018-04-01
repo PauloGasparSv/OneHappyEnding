@@ -2,6 +2,7 @@ package com.pvale.screens;
 
 import com.pvale.screens.SimpleStage;
 import com.pvale.utils.In;
+import com.pvale.utils.Text;
 import com.pvale.actors.Actor;
 import com.pvale.actors.Player;
 import com.pvale.maps.Map; 
@@ -58,6 +59,8 @@ public class SimpleStage extends Stage
     {
         map.draw(camera, batch);
         player.draw(batch);
+
+        Text.draw(batch, "HELLO I AM STUPED", 48, 48);
     }
 
     @Override

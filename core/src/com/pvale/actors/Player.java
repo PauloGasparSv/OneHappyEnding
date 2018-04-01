@@ -56,7 +56,7 @@ public class Player extends Actor
     @Override
     public void update(OrthographicCamera camera, Map map, float delta)
     {
-        In.getControllerInfo();
+        //In.getControllerInfo();
         pushing = false;
         currentDelta += delta;
 
