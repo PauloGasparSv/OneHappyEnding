@@ -37,10 +37,10 @@ public class SimpleStage extends Stage
         if(In.justMenu())
             editMode = !editMode;
         if(!editMode)
-            player.update(camera, map, delta);
-
-
-        cameraControl();
+        {
+            player.update(camera, map, delta); 
+            cameraControl();
+        }
     }
 
     public void cameraControl()

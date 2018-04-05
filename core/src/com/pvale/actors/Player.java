@@ -99,6 +99,13 @@ public class Player extends Actor
             ac += delta * gravity;
             if(ac > 200) ac = 200;
             y -= ac * delta;
+
+            if(ac < 0 && (map.isSolid(x + 3, y + 13) || map.isSolid(x + 13, y + 13)))
+            {   
+                ac = 0;
+                y = ((int) y / 16) * 16 + 2;
+            }
+
         }
 
 

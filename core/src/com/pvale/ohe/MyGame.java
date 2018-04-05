@@ -1,7 +1,5 @@
 package com.pvale.ohe;
 
-import java.rmi.server.SocketSecurityException;
-
 import com.badlogic.gdx.Game;
 import com.pvale.screens.IntroStage;
 import com.pvale.screens.SimpleStage;
@@ -30,7 +28,7 @@ public class MyGame extends Game
         Text.init();
         Stage.init();
 
-        setScreen(new IntroStage());
+        setScreen(new SimpleStage());
     }
 
     @Override
