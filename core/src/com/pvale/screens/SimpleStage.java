@@ -3,6 +3,7 @@ package com.pvale.screens;
 import com.pvale.screens.SimpleStage;
 import com.pvale.utils.In;
 import com.pvale.actors.Actor;
+import com.pvale.actors.IntroDeath;
 import com.pvale.actors.Player;
 import com.pvale.maps.Map; 
 
@@ -10,6 +11,8 @@ public class SimpleStage extends Stage
 {
     private Player player;
     private Map map;
+
+    private IntroDeath death;
 
     private boolean editMode = false;
 
@@ -26,6 +29,8 @@ public class SimpleStage extends Stage
         player.y = 64f;
         player.grounded = false;
   
+        death = new IntroDeath();
+
         setFade(FadeState.FADEIN);
     }
     
@@ -41,6 +46,8 @@ public class SimpleStage extends Stage
             player.update(camera, map, delta); 
             cameraControl();
         }
+
+        death.update(camera, map, delta);
     }
 
     public void cameraControl()
@@ -60,6 +67,7 @@ public class SimpleStage extends Stage
     {
         map.draw(camera, batch);
         player.draw(batch);
+        death.draw(batch);
 
     }
 

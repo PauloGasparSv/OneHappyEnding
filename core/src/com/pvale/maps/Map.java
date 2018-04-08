@@ -38,6 +38,8 @@ public class Map
             texturePath = lines[0];
             String [] rc = lines[1].split(" ");
             
+            System.out.println("HELLOOOOOO");
+            System.out.println("line: " + lines[3]);
             map = new int[Integer.parseInt(rc[0])][Integer.parseInt(rc[1])];
 
             for(int row = 0; row < map.length; row ++)

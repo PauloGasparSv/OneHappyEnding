@@ -38,4 +38,9 @@ public class Actor
     {
 
     }
+
+    public void dispose()
+    {
+
+    }
 }
